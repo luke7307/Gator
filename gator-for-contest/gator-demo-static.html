@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gator · 创意产物 | Trae AI 创造力大赛</title>
+
+    <!-- ===== 与 index.html 相同的依赖 ===== -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --theme-primary: #3B82F6;
+            --theme-primary-dark: #2563EB;
+            --theme-primary-light: #DBEAFE;
+            --theme-primary-faint: #EFF6FF;
+            --app-bg: #F7F9FC;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+            background: var(--app-bg);
+            color: #1F2937;
+            line-height: 1.6;
+        }
+
+        /* ===== 顶部导航栏 ===== */
+        .top-nav {
+            background: #fff;
+            border-bottom: 1px solid #E5E7EB;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .nav-inner {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .brand-mark {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 15px;
+            color: #111827;
+        }
+        .brand-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3B82F6, #2563EB);
+            color: #fff;
+            font-size: 15px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25);
+        }
+        .nav-links {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .nav-link {
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 13px;
+            color: #4B5563;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .nav-link:hover {
+            background: #EFF6FF;
+            color: #2563EB;
+        }
+        .nav-badge {
+            padding: 6px 12px;
+            background: #FEF3C7;
+            color: #B45309;
+            font-size: 11px;
+            font-weight: 600;
+            border-radius: 999px;
+        }
+
+        /* ===== Hero 区 ===== */
+        .hero {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 56px 24px 32px;
+            text-align: center;
+        }
+        .hero-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #2563EB;
+            background: #EFF6FF;
+            padding: 6px 14px;
+            border-radius: 999px;
+            margin-bottom: 24px;
+        }
+        .hero-kicker .dot {
+            width: 6px;
+            height: 6px;
+            background: #F97316;
+            border-radius: 50%;
+        }
+        .hero h1 {
+            font-size: 42px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-bottom: 16px;
+            color: #111827;
+        }
+        .hero h1 .accent {
+            background: linear-gradient(135deg, #3B82F6, #8B5CF6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .hero p {
+            font-size: 15px;
+            color: #4B5563;
+            max-width: 580px;
+            margin: 0 auto 28px;
+        }
+
+        /* ===== 三栏核心链路（纯 CSS，无 JS 动画） ===== */
+        .pipeline {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 20px 24px 40px;
+        }
+        .pipeline-title {
+            text-align: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 20px;
+        }
+        .pipeline-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+            align-items: stretch;
+        }
+        .p-col {
+            background: #fff;
+            border: 1px solid #E5E7EB;
+            border-radius: 20px;
+            padding: 20px;
+        }
+        .p-col-tag {
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            padding: 4px 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .p-col-tag.in { background: #EFF6FF; color: #2563EB; }
+        .p-col-tag.process { background: #F5F3FF; color: #7C3AED; }
+        .p-col-tag.out { background: #ECFDF5; color: #047857; }
+        .p-col-head {
+            font-size: 18px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 4px;
+        }
+        .p-col-sub {
+            font-size: 12px;
+            color: #6B7280;
+            margin-bottom: 14px;
+        }
+
+        /* 捕获按钮样式（纯静态，无 JS 交互） */
+        .capture-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 12px;
+            background: #FAFAF7;
+            border: 1px solid #F3F4F6;
+            border-radius: 12px;
+            margin-bottom: 8px;
+        }
+        .capture-item:last-child { margin-bottom: 0; }
+        .capture-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+            background: #EFF6FF;
+            color: #2563EB;
+        }
+        .capture-item.purple .capture-icon { background: #F5F3FF; color: #7C3AED; }
+        .capture-item.green .capture-icon { background: #ECFDF5; color: #047857; }
+        .capture-item.orange .capture-icon { background: #FEF3C7; color: #B45309; }
+        .capture-item.pink .capture-icon { background: #FCE7F3; color: #BE185D; }
+        .capture-text {
+            font-size: 12px;
+            color: #374151;
+            line-height: 1.45;
+        }
+        .capture-text .label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #111827;
+            margin-bottom: 2px;
+        }
+        .capture-text .sub {
+            font-size: 11px;
+            color: #9CA3AF;
+            margin-top: 4px;
+        }
+
+        /* PROCESS 列的处理步骤 */
+        .process-step {
+            display: flex;
+            gap: 10px;
+            padding: 10px 12px;
+            background: #FAFAF7;
+            border: 1px solid #F3F4F6;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        .process-step:last-child { margin-bottom: 0; }
+        .step-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #8B5CF6;
+            color: #fff;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .step-body {
+            font-size: 12px;
+            color: #374151;
+            line-height: 1.45;
+        }
+        .step-body .label {
+            font-weight: 600;
+            font-size: 13px;
+            color: #111827;
+        }
+        .step-tags {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+        }
+        .tag-chip {
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 999px;
+            font-weight: 500;
+        }
+        .tag-chip.blue { background: #EFF6FF; color: #2563EB; }
+        .tag-chip.purple { background: #F5F3FF; color: #7C3AED; }
+        .tag-chip.green { background: #ECFDF5; color: #047857; }
+        .tag-chip.orange { background: #FEF3C7; color: #B45309; }
+        .tag-chip.pink { background: #FCE7F3; color: #BE185D; }
+
+        /* OUT 列的卡片输出 */
+        .out-card {
+            background: #fff;
+            border: 1px solid #E5E7EB;
+            border-radius: 14px;
+            padding: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+        .out-card:last-child { margin-bottom: 0; }
+        .out-card-head {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .out-emoji {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: #EFF6FF;
+            color: #2563EB;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .out-card.green .out-emoji { background: #ECFDF5; color: #047857; }
+        .out-card.purple .out-emoji { background: #F5F3FF; color: #7C3AED; }
+        .out-card.orange .out-emoji { background: #FEF3C7; color: #B45309; }
+        .out-card-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #111827;
+        }
+        .out-card-body {
+            font-size: 12px;
+            color: #4B5563;
+            margin-bottom: 6px;
+            line-height: 1.5;
+        }
+        .out-card-meta {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .meta-chip {
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            background: #F3F4F6;
+            color: #4B5563;
+            font-weight: 500;
+        }
+        .meta-chip.time {
+            background: #FEF3C7;
+            color: #B45309;
+        }
+
+        /* ===== 功能矩阵区 ===== */
+        .features {
+            background: #fff;
+            border-top: 1px solid #E5E7EB;
+            border-bottom: 1px solid #E5E7EB;
+            padding: 56px 24px;
+            margin-top: 20px;
+        }
+        .features-inner {
+            max-width: 1080px;
+            margin: 0 auto;
+        }
+        .section-head {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        .section-head .kicker {
+            font-size: 12px;
+            color: #2563EB;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+        .section-head h2 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #111827;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+        .section-head p {
+            font-size: 14px;
+            color: #6B7280;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+        }
+        .feature {
+            padding: 18px;
+            background: #FAFAF7;
+            border: 1px solid #F3F4F6;
+            border-radius: 14px;
+        }
+        .feature-ico {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: #EFF6FF;
+            color: #2563EB;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        .feature.purple .feature-ico { background: #F5F3FF; color: #7C3AED; }
+        .feature.green .feature-ico { background: #ECFDF5; color: #047857; }
+        .feature.orange .feature-ico { background: #FEF3C7; color: #B45309; }
+        .feature.pink .feature-ico { background: #FCE7F3; color: #BE185D; }
+        .feature.dark .feature-ico { background: #F3F4F6; color: #4B5563; }
+
+        .feature-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 6px;
+        }
+        .feature-desc {
+            font-size: 12px;
+            color: #6B7280;
+            line-height: 1.5;
+        }
+
+        /* ===== 日报样例区 ===== */
+        .report-section {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 56px 24px;
+        }
+        .report-card {
+            background: #fff;
+            border: 1px solid #E5E7EB;
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.03);
+        }
+        .report-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 20px;
+            border-bottom: 1px dashed #E5E7EB;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .report-date {
+            font-size: 15px;
+            font-weight: 700;
+            color: #111827;
+        }
+        .report-summary {
+            font-size: 12px;
+            color: #6B7280;
+        }
+        .report-summary strong {
+            color: #2563EB;
+            font-weight: 700;
+        }
+
+        .report-group {
+            margin-bottom: 24px;
+        }
+        .report-group:last-child { margin-bottom: 0; }
+        .report-group-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #6B7280;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .report-row {
+            display: flex;
+            gap: 10px;
+            padding: 10px 12px;
+            background: #FAFAF7;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #374151;
+        }
+        .report-row:last-child { margin-bottom: 0; }
+        .report-row-emoji {
+            font-size: 16px;
+            flex-shrink: 0;
+            line-height: 1;
+            margin-top: 1px;
+        }
+        .report-row-text strong {
+            color: #111827;
+            font-weight: 600;
+        }
+
+        .report-insight {
+            margin-top: 24px;
+            background: linear-gradient(135deg, #EFF6FF, #F5F3FF);
+            padding: 18px 20px;
+            border-radius: 14px;
+            font-size: 13px;
+            color: #374151;
+            line-height: 1.7;
+        }
+        .report-insight strong {
+            color: #2563EB;
+        }
+        .report-insight-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #2563EB;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        /* ===== 对比痛点表 ===== */
+        .compare-section {
+            background: #fff;
+            border-top: 1px solid #E5E7EB;
+            padding: 56px 24px;
+        }
+        .compare-inner {
+            max-width: 1080px;
+            margin: 0 auto;
+        }
+        .compare-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 12px;
+        }
+        .compare-card {
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid #E5E7EB;
+            background: #fff;
+        }
+        .compare-card.danger { border-color: #FECACA; background: #FEF2F2; }
+        .compare-card.danger .compare-emoji { background: #FECACA; color: #B91C1C; }
+        .compare-card.success { border-color: #A7F3D0; background: #F0FDF4; }
+        .compare-card.success .compare-emoji { background: #A7F3D0; color: #047857; }
+        .compare-emoji {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: #EFF6FF;
+            color: #2563EB;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+        }
+        .compare-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #111827;
+            margin-bottom: 6px;
+        }
+        .compare-body {
+            font-size: 12px;
+            color: #4B5563;
+            line-height: 1.6;
+        }
+
+        /* ===== 页脚 ===== */
+        .footer {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 28px 24px;
+            text-align: center;
+            border-top: 1px solid #E5E7EB;
+        }
+        .footer-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: #1F2937;
+            margin-bottom: 4px;
+        }
+        .footer-sub {
+            font-size: 11px;
+            color: #9CA3AF;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 860px) {
+            .pipeline-grid { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 28px; }
+            .report-card { padding: 20px; }
+        }
+
+        @media (max-width: 560px) {
+            .hero { padding: 40px 20px 24px; }
+            .hero h1 { font-size: 24px; }
+            .section-head h2 { font-size: 22px; }
+            .report-card { padding: 16px; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ============================================================ -->
+    <!-- 顶部导航栏 -->
+    <!-- ============================================================ -->
+    <div class="top-nav">
+        <div class="nav-inner">
+            <div class="brand-mark">
+                <div class="brand-circle">G</div>
+                <span>Gator · 信息效率工具箱</span>
+            </div>
+            <div class="nav-links">
+                <a href="#pipeline" class="nav-link">核心链路</a>
+                <a href="#features" class="nav-link">功能矩阵</a>
+                <a href="#report" class="nav-link">日报样例</a>
+                <a href="#compare" class="nav-link">对比痛点</a>
+            </div>
+            <div class="nav-badge">Trae AI 创造力大赛</div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- Hero 标题区 -->
+    <!-- ============================================================ -->
+    <div class="hero">
+        <div class="hero-kicker">
+            <span class="dot"></span>
+            IN · PROCESS · OUT —— 三条链路解决信息焦虑
+        </div>
+        <h1>让碎片信息从「<span class="accent">只进不出</span>」到「件件有回响」</h1>
+        <p>一个灵感笔记、一张截图、一个链接、一段随手记 —— Gator 帮你自动提取标题、识别时间、打上标签，
+           最终汇总成可行动的日报/周报。</p>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 核心链路三栏：IN → PROCESS → OUT -->
+    <!-- ============================================================ -->
+    <section id="pipeline" class="pipeline">
+        <div class="pipeline-title">🧭 三栏链路演示 · 一个碎片信息从输入到输出的全过程</div>
+
+        <div class="pipeline-grid">
+
+            <!-- ================= IN 输入栏 ================= -->
+            <div class="p-col">
+                <div class="p-col-tag in">LAYER 01 · IN</div>
+                <div class="p-col-head">输入 · 任意形式随手捕获</div>
+                <div class="p-col-sub">想到即保存，不打断灵感的流动</div>
+
+                <div class="capture-item">
+                    <div class="capture-icon">🔗</div>
+                    <div class="capture-text">
+                        <div class="label">粘贴一个网页链接</div>
+                        自动抓取标题与摘要
+                        <div class="sub">来源：任意网页 · URL</div>
+                    </div>
+                </div>
+
+                <div class="capture-item purple">
+                    <div class="capture-icon">📝</div>
+                    <div class="capture-text">
+                        <div class="label">随手一段碎碎念</div>
+                        几行文字即可，不必写成完美笔记
+                        <div class="sub">手动打字 · 语音输入</div>
+                    </div>
+                </div>
+
+                <div class="capture-item green">
+                    <div class="capture-icon">✅</div>
+                    <div class="capture-text">
+                        <div class="label">识别为待办事项</div>
+                        "周五下午3点汇报" —— 自动提取时间
+                        <div class="sub">自动识别 · 语义分析</div>
+                    </div>
+                </div>
+
+                <div class="capture-item orange">
+                    <div class="capture-icon">🖼️</div>
+                    <div class="capture-text">
+                        <div class="label">图片 / 截图</div>
+                        自动 OCR 提取图片里的文字
+                        <div class="sub">JPG · PNG · 屏幕截图</div>
+                    </div>
+                </div>
+
+                <div class="capture-item pink">
+                    <div class="capture-icon">💡</div>
+                    <div class="capture-text">
+                        <div class="label">灵感一闪</div>
+                        想到一个产品功能，记下来再说
+                        <div class="sub">手机随手记 · 网页插件</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PROCESS 处理栏 ================= -->
+            <div class="p-col">
+                <div class="p-col-tag process">LAYER 02 · PROCESS</div>
+                <div class="p-col-head">处理 · AI 自动提取与分类</div>
+                <div class="p-col-sub">机器做脏活累活，你做判断</div>
+
+                <div class="process-step">
+                    <div class="step-num">1</div>
+                    <div class="step-body">
+                        <div class="label">语义分析</div>
+                        判断这是「灵感」「待办」「收藏」还是「知识」
+                        <div class="step-tags">
+                            <span class="tag-chip purple">语义识别</span>
+                            <span class="tag-chip blue">分类</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="process-step">
+                    <div class="step-num">2</div>
+                    <div class="step-body">
+                        <div class="label">标题 / 摘要提取</div>
+                        自动从大段文字中提炼关键内容
+                        <div class="step-tags">
+                            <span class="tag-chip blue">AI 摘要</span>
+                            <span class="tag-chip orange">标题生成</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="process-step">
+                    <div class="step-num">3</div>
+                    <div class="step-body">
+                        <div class="label">时间智能识别</div>
+                        "周五下午3点" → 2026-06-20 15:00
+                        <div class="step-tags">
+                            <span class="tag-chip green">⏰ 时间解析</span>
+                            <span class="tag-chip">日历联动</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="process-step">
+                    <div class="step-num">4</div>
+                    <div class="step-body">
+                        <div class="label">打标签</div>
+                        从文本里抽关键词，自动建议相关标签
+                        <div class="step-tags">
+                            <span class="tag-chip pink">#产品</span>
+                            <span class="tag-chip purple">#AI</span>
+                            <span class="tag-chip blue">#信息管理</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="process-step">
+                    <div class="step-num">5</div>
+                    <div class="step-body">
+                        <div class="label">去重 / 合并</div>
+                        相同主题的内容自动归并，消除冗余
+                        <div class="step-tags">
+                            <span class="tag-chip">内容聚合</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= OUT 输出栏 ================= -->
+            <div class="p-col">
+                <div class="p-col-tag out">LAYER 03 · OUT</div>
+                <div class="p-col-head">输出 · 可行动的结构化卡片</div>
+                <div class="p-col-sub">日报 · 待办 · 收藏，自动汇总</div>
+
+                <div class="out-card">
+                    <div class="out-card-head">
+                        <div class="out-emoji">🔗</div>
+                        <div class="out-card-title">AI 时代的信息捕获范式</div>
+                    </div>
+                    <div class="out-card-body">关于 AI 时代信息检索与捕获关系的一篇深度文章，讨论了当 AI 能回答任何问题时，真正的瓶颈不再是找不到信息。</div>
+                    <div class="out-card-meta">
+                        <span class="meta-chip">文章 · medium</span>
+                        <span class="meta-chip tag-chip blue">#AI</span>
+                        <span class="meta-chip tag-chip purple">#信息管理</span>
+                    </div>
+                </div>
+
+                <div class="out-card green">
+                    <div class="out-card-head">
+                        <div class="out-emoji">✅</div>
+                        <div class="out-card-title">项目汇报 · 周五 15:00</div>
+                    </div>
+                    <div class="out-card-body">老板要求的项目进度汇报，已自动识别时间并加入待办列表。</div>
+                    <div class="out-card-meta">
+                        <span class="meta-chip time">⏰ 2026-06-20 15:00</span>
+                        <span class="meta-chip tag-chip orange">#工作</span>
+                        <span class="meta-chip tag-chip green">#待办</span>
+                    </div>
+                </div>
+
+                <div class="out-card purple">
+                    <div class="out-card-head">
+                        <div class="out-emoji">💡</div>
+                        <div class="out-card-title">把聊天消息一键变待办</div>
+                    </div>
+                    <div class="out-card-body">产品灵感：做一个浏览器插件，选中任意网页中的文本，右键菜单可一键发送到 Gator 并自动识别类型。</div>
+                    <div class="out-card-meta">
+                        <span class="meta-chip">产品灵感</span>
+                        <span class="meta-chip tag-chip pink">#产品</span>
+                        <span class="meta-chip tag-chip orange">#功能</span>
+                    </div>
+                </div>
+
+                <div class="out-card orange">
+                    <div class="out-card-head">
+                        <div class="out-emoji">🖼️</div>
+                        <div class="out-card-title">创造力大赛报名 · 截图信息</div>
+                    </div>
+                    <div class="out-card-body">从图片中 OCR 提取到关键信息：Trae AI 创造力大赛报名截止 2026 年 6 月 20 日 23:59。</div>
+                    <div class="out-card-meta">
+                        <span class="meta-chip time">⏰ 截止 2026-06-20 23:59</span>
+                        <span class="meta-chip">OCR · 图片</span>
+                        <span class="meta-chip tag-chip orange">#大赛</span>
+                    </div>
+                </div>
+
+                <div class="out-card">
+                    <div class="out-card-head">
+                        <div class="out-emoji">📝</div>
+                        <div class="out-card-title">关于写作方法论的一点思考</div>
+                    </div>
+                    <div class="out-card-body">写作不是把脑子里已有的东西抄出来，而是在写的过程中发现自己到底在想什么。先写再想，比先想再写更有效。</div>
+                    <div class="out-card-meta">
+                        <span class="meta-chip">随笔 · 思考</span>
+                        <span class="meta-chip tag-chip purple">#写作</span>
+                        <span class="meta-chip tag-chip green">#方法论</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- 功能矩阵 -->
+    <!-- ============================================================ -->
+    <section id="features" class="features">
+        <div class="features-inner">
+            <div class="section-head">
+                <div class="kicker">FEATURES · 功能矩阵</div>
+                <h2>一个完整但不复杂的灵感工具箱</h2>
+                <p>从捕获到输出，每一环节都有对应的自动化能力</p>
+            </div>
+
+            <div class="feature-grid">
+                <div class="feature">
+                    <div class="feature-ico">🔗</div>
+                    <div class="feature-title">链接智能解析</div>
+                    <div class="feature-desc">粘贴任意 URL，自动抓取标题与摘要，生成结构化卡片</div>
+                </div>
+
+                <div class="feature purple">
+                    <div class="feature-ico">🧠</div>
+                    <div class="feature-title">AI 自动打标签</div>
+                    <div class="feature-desc">基于内容语义自动分类，越用越懂你的思维方式</div>
+                </div>
+
+                <div class="feature green">
+                    <div class="feature-ico">📅</div>
+                    <div class="feature-title">时间智能识别</div>
+                    <div class="feature-desc">"周五下午3点"自动解析为时间提醒，可与系统日历联动</div>
+                </div>
+
+                <div class="feature orange">
+                    <div class="feature-ico">📊</div>
+                    <div class="feature-title">日报 / 周报生成</div>
+                    <div class="feature-desc">按时间自动聚合你的碎片内容，一键生成日报卡片</div>
+                </div>
+
+                <div class="feature pink">
+                    <div class="feature-ico">🖼️</div>
+                    <div class="feature-title">图片 OCR 提取</div>
+                    <div class="feature-desc">截图、图片自动识别文字，可检索、可提取关键信息</div>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-ico">🧩</div>
+                    <div class="feature-title">去重 / 聚合</div>
+                    <div class="feature-desc">相同主题的内容自动合并，消除信息冗余</div>
+                </div>
+
+                <div class="feature purple">
+                    <div class="feature-ico">🗂️</div>
+                    <div class="feature-title">多笔记簿隔离</div>
+                    <div class="feature-desc">工作 / 生活 / 学习互相隔离，数据互不串线</div>
+                </div>
+
+                <div class="feature green">
+                    <div class="feature-ico">🗑️</div>
+                    <div class="feature-title">回收站 & 恢复</div>
+                    <div class="feature-desc">删除后自动保留，随时可单条恢复，避免误删遗憾</div>
+                </div>
+
+                <div class="feature orange">
+                    <div class="feature-ico">🎨</div>
+                    <div class="feature-title">多套主题色切换</div>
+                    <div class="feature-desc">蓝 / 紫 / 绿 / 橙 / 粉 / 暗色自由切换，切换瞬间完成无闪烁</div>
+                </div>
+
+                <div class="feature dark">
+                    <div class="feature-ico">🔍</div>
+                    <div class="feature-title">全文搜索</div>
+                    <div class="feature-desc">按关键词搜索标题与正文，支持分类筛选快速定位</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- 日报样例 -->
+    <!-- ============================================================ -->
+    <section id="report" class="report-section">
+        <div class="section-head">
+            <div class="kicker">OUTPUT SAMPLE · 输出样例</div>
+            <h2>今天的 Gator 日报长这样</h2>
+            <p>每天结束时，Gator 自动把你一天捕获的碎片整理成可行动的输出</p>
+        </div>
+
+        <div class="report-card">
+            <div class="report-head">
+                <div class="report-date">📅 2026 年 6 月 17 日 · 周三</div>
+                <div class="report-summary">
+                    共捕获 <strong>5</strong> 条信息 ·
+                    自动识别 <strong>3</strong> 个待办 ·
+                    <strong>2</strong> 个灵感
+                </div>
+            </div>
+
+            <!-- 待办组 -->
+            <div class="report-group">
+                <div class="report-group-title">⏰ 今日待办 · 按时间排序</div>
+
+                <div class="report-row">
+                    <div class="report-row-emoji">📌</div>
+                    <div class="report-row-text">
+                        <strong>周五 15:00 · 项目汇报</strong>
+                        <br>老板说周五下午汇报项目进展，准备进度表、关键指标、下一阶段规划
+                    </div>
+                </div>
+
+                <div class="report-row">
+                    <div class="report-row-emoji">📌</div>
+                    <div class="report-row-text">
+                        <strong>本周五前 · 阅读推荐文章</strong>
+                        <br>《AI 时代的信息捕获范式》，已标记为"待回看"并设置提醒
+                    </div>
+                </div>
+
+                <div class="report-row">
+                    <div class="report-row-emoji">📌</div>
+                    <div class="report-row-text">
+                        <strong>6 月 20 日 23:59 · 创造力大赛报名截止</strong>
+                        <br>从截图 OCR 提取到的时间信息，已自动转为待办并设提醒
+                    </div>
+                </div>
+            </div>
+
+            <!-- 灵感组 -->
+            <div class="report-group">
+                <div class="report-group-title">💡 今日灵感 · 待进一步整理</div>
+
+                <div class="report-row">
+                    <div class="report-row-emoji">✨</div>
+                    <div class="report-row-text">
+                        <strong>产品灵感</strong>
+                        <br>「把聊天消息一键变成待办」—— 做一个浏览器插件原型：选中文本，右键发送到 Gator
+                    </div>
+                </div>
+
+                <div class="report-row">
+                    <div class="report-row-emoji">✨</div>
+                    <div class="report-row-text">
+                        <strong>写作选题</strong>
+                        <br>"当 AI 能回答一切，提问的稀缺性反而上升" —— 可以展开写一篇短文
+                    </div>
+                </div>
+
+                <div class="report-row">
+                    <div class="report-row-emoji">✨</div>
+                    <div class="report-row-text">
+                        <strong>方法论思考</strong>
+                        <br>"先写再想"比"先想再写"更重要，写作的过程就是思考的过程本身
+                    </div>
+                </div>
+            </div>
+
+            <!-- 收藏组 -->
+            <div class="report-group">
+                <div class="report-group-title">📎 今日收藏 · 稍后回看</div>
+
+                <div class="report-row">
+                    <div class="report-row-emoji">📰</div>
+                    <div class="report-row-text">
+                        <strong>链接卡片</strong>
+                        <br>《AI 时代的信息捕获范式》— 已保存并自动提取标题，来源：medium.com
+                    </div>
+                </div>
+
+                <div class="report-row">
+                    <div class="report-row-emoji">🖼️</div>
+                    <div class="report-row-text">
+                        <strong>图片提取</strong>
+                        <br>截图 OCR 提取："Trae AI 创造力大赛报名截止 6 月 20 日 23:59"
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI 洞察 -->
+            <div class="report-insight">
+                <div class="report-insight-title">🤖 Gator 今日洞察</div>
+                <strong>今日内容主题：</strong>AI 与信息管理（3 条） · 工作待办（2 条）。<br>
+                <strong>关联建议：</strong>周五的项目汇报之前，建议回看《AI 时代的信息捕获范式》一文，
+                可能对你的汇报内容有启发。已自动标记为"<strong>待回看 · 周五 10:00 前</strong>"。<br>
+                <strong>周期性：</strong>你每周三下午集中捕获的内容较多，建议把周三定为"内容整理日"。
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- 对比痛点表 -->
+    <!-- ============================================================ -->
+    <section id="compare" class="compare-section">
+        <div class="compare-inner">
+            <div class="section-head">
+                <div class="kicker">PAIN POINTS · 对比痛点</div>
+                <h2>市面工具 vs Gator</h2>
+                <p>每一个被"不好用"消耗的瞬间，都是 Gator 存在的理由</p>
+            </div>
+
+            <div class="compare-grid">
+                <div class="compare-card danger">
+                    <div class="compare-emoji">😫</div>
+                    <div class="compare-title">收藏夹黑洞</div>
+                    <div class="compare-body">
+                        微信文件传输助手、各平台收藏夹只进不出，东西存进去就忘了，再也没翻过。
+                    </div>
+                </div>
+
+                <div class="compare-card success">
+                    <div class="compare-emoji">🦾</div>
+                    <div class="compare-title">Gator 方案</div>
+                    <div class="compare-body">
+                        自动按时间 & 主题聚合，日报自动把过去一周的收藏推到你面前，不会有任何"被遗忘"。
+                    </div>
+                </div>
+
+                <div class="compare-card danger">
+                    <div class="compare-emoji">📱</div>
+                    <div class="compare-title">待办分散</div>
+                    <div class="compare-body">
+                        手机备忘录里一条、日历里一条、聊天里一条，真要做的时候找不齐，最终全错过。
+                    </div>
+                </div>
+
+                <div class="compare-card success">
+                    <div class="compare-emoji">🧭</div>
+                    <div class="compare-title">Gator 方案</div>
+                    <div class="compare-body">
+                        自动识别文本中的日期与时间，统一入口展示所有待办，与系统日历联动提醒。
+                    </div>
+                </div>
+
+                <div class="compare-card danger">
+                    <div class="compare-emoji">😤</div>
+                    <div class="compare-title">处理成本高</div>
+                    <div class="compare-body">
+                        复制粘贴过来后，还要自己手动画重点、写标题、加时间、分类打标签，几行文字变半小时整理。
+                    </div>
+                </div>
+
+                <div class="compare-card success">
+                    <div class="compare-emoji">🧠</div>
+                    <div class="compare-title">Gator 方案</div>
+                    <div class="compare-body">
+                        AI 负责脏活累活：自动提取标题、识别时间、生成标签。你只需做最终判断。
+                    </div>
+                </div>
+
+                <div class="compare-card danger">
+                    <div class="compare-emoji">😮‍💨</div>
+                    <div class="compare-title">输出困难</div>
+                    <div class="compare-body">
+                        写周报时，要从 5 个 App 里翻自己做了什么，东拼西凑半小时，结果还漏了重要的事情。
+                    </div>
+                </div>
+
+                <div class="compare-card success">
+                    <div class="compare-emoji">📮</div>
+                    <div class="compare-title">Gator 方案</div>
+                    <div class="compare-body">
+                        按日 / 周 / 月自动汇总输出，按内容类别自动分组，周报一键生成，不漏不错。
+                    </div>
+                </div>
+
+                <div class="compare-card danger">
+                    <div class="compare-emoji">💰</div>
+                    <div class="compare-title">订阅烧钱</div>
+                    <div class="compare-body">
+                        随便一个笔记 App 一年 100+ 块起，再加上各种 AI token 费用，感觉被层层收割。
+                    </div>
+                </div>
+
+                <div class="compare-card success">
+                    <div class="compare-emoji">🆓</div>
+                    <div class="compare-title">Gator 方案</div>
+                    <div class="compare-body">
+                        纯前端架构，数据本地存储，可选接入本地 LLM。不建账号、不上云、不被订阅制绑架。
+                    </div>
+                </div>
+
+                <div class="compare-card danger">
+                    <div class="compare-emoji">🔒</div>
+                    <div class="compare-title">隐私担忧</div>
+                    <div class="compare-body">
+                        把灵感、待办、日常思考都存在云端，隐私和数据安全永远是悬着的问号。
+                    </div>
+                </div>
+
+                <div class="compare-card success">
+                    <div class="compare-emoji">🔐</div>
+                    <div class="compare-title">Gator 方案</div>
+                    <div class="compare-body">
+                        默认本地存储（localStorage / IndexedDB），不上云、不建账号、不收集数据。你的灵感只属于你。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============================================================ -->
+    <!-- 页脚 -->
+    <!-- ============================================================ -->
+    <div class="footer">
+        <div class="footer-title">Gator · 信息效率工具箱</div>
+        <div class="footer-sub">Trae AI 创造力大赛 · 参赛作品 — 一个人 + AI 的实验</div>
+    </div>
+
+</body>
+</html>

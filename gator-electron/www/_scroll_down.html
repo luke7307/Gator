@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>body{margin:0}iframe{border:none;display:block;width:100%;height:100vh}</style>
+</head>
+<body>
+<iframe id="app" src="http://localhost:8766/index.html"></iframe>
+<script>
+const iframe = document.getElementById('app');
+iframe.addEventListener('load', () => {
+  setTimeout(() => {
+    const doc = iframe.contentDocument;
+    const win = iframe.contentWindow;
+    // 点击"分类与灵感"按钮
+    const btn = doc.querySelector('button[onclick*="addDemoData"]');
+    if (btn) btn.click();
+    
+    setTimeout(() => {
+      // 滚到下方找带图卡片
+      win.scrollTo(0, 1500);
+    }, 1000);
+  }, 2500);
+});
+</script>
+</body>
+</html>

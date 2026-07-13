@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gator 灵犀 - 我的灵感空间</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── Reset & Base ── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* ── Warm Palette (Claude-inspired) ── */
+  --brand-primary: #D97706;
+  --brand-primary-dark: #B45309;
+  --brand-primary-light: #FDE68A;
+  --brand-primary-faint: #FFFBEB;
+  --brand-accent: #2563EB;
+  --brand-accent-light: #DBEAFE;
+  --neutral-50: #FAFAF9;
+  --neutral-100: #F5F5F4;
+  --neutral-200: #E7E5E4;
+  --neutral-300: #D6D3D1;
+  --neutral-400: #A8A29E;
+  --neutral-500: #78716C;
+  --neutral-600: #57534E;
+  --neutral-700: #44403C;
+  --neutral-800: #292524;
+  --neutral-900: #1C1917;
+  --surface-bg: #FDFCFA;
+  --surface-sidebar: #F5F0EB;
+  --surface-hover: #F0EBE5;
+  --surface-active: #E7E0D8;
+  --surface-card: #FFFFFF;
+  --surface-modal: #FFFFFF;
+  --surface-overlay: rgba(28, 25, 23, 0.5);
+  --surface-input: #F5F0EB;
+  --border-default: #E7E5E4;
+  --border-light: #F0EBE5;
+  --border-focus: #D97706;
+  --text-primary: #1C1917;
+  --text-secondary: #57534E;
+  --text-tertiary: #A8A29E;
+  --text-inverse: #FFFFFF;
+  --text-link: #D97706;
+  --state-success: #059669;
+  --state-warning: #D97706;
+  --state-error: #DC2626;
+  --state-info: #2563EB;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.08);
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 18px;
+  --text-2xl: 20px;
+  --text-3xl: 24px;
+  --text-4xl: 30px;
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.02em;
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 0px;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  background: var(--surface-bg);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── App Shell ── */
+.app-shell {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  background: var(--surface-sidebar);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
+  border-right: 1px solid var(--border-light);
+  padding: 20px 16px;
+  position: relative;
+}
+
+.sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: var(--neutral-300);
+  border-radius: var(--radius-full);
+}
+
+/* Sidebar Top */
+.sidebar-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 4px 2px;
+  margin-bottom: 4px;
+}
+
+.sidebar-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+}
+
+.sidebar-brand {
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-brand-name {
+  font-size: var(--text-base);
+  font-weight: 600;
+  color: var(--text-secondary);
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.sidebar-brand-sub {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  line-height: var(--leading-tight);
+}
+
+/* Quick Input */
+.quick-input-wrap {
+  margin: 12px 0 16px;
+  position: relative;
+}
+
+.quick-input {
+  width: 100%;
+  padding: 10px 40px 10px 14px;
+  background: var(--surface-hover);
+  border: 1px solid transparent;
+  border-radius: var(--radius-xl);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.quick-input::placeholder {
+  color: var(--text-tertiary);
+}
+
+.quick-input:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.12);
+  background: var(--surface-card);
+}
+
+.quick-input-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: var(--brand-primary);
+  color: var(--text-inverse);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.quick-input-icon:hover {
+  background: var(--brand-primary-dark);
+}
+
+.quick-input-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+/* Inspirations List */
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0 8px;
+  margin-bottom: 6px;
+}
+
+.inspiration-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-height: 0;
+}
+
+.inspiration-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 8px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background 0.15s ease;
+  border-left: 3px solid transparent;
+  position: relative;
+}
+
+.inspiration-item:hover {
+  background: var(--surface-hover);
+}
+
+.inspiration-item.active {
+  background: var(--surface-active);
+  border-left-color: var(--brand-primary);
+}
+
+.inspiration-item-emoji {
+  font-size: 20px;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 28px;
+  text-align: center;
+}
+
+.inspiration-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.inspiration-item-title {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: var(--leading-tight);
+}
+
+.inspiration-item-time {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  line-height: var(--leading-tight);
+  margin-top: 2px;
+}
+
+/* Divider */
+.sidebar-divider {
+  height: 1px;
+  background: var(--border-default);
+  margin: 12px 4px;
+}
+
+/* Categories */
+.categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 4px 12px;
+}
+
+.category-pill {
+  font-size: var(--text-xs);
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-weight: 500;
+  border: none;
+  font-family: var(--font-sans);
+}
+
+.category-pill.active {
+  background: var(--brand-primary);
+  color: var(--text-inverse);
+}
+
+.category-pill:not(.active) {
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.category-pill:not(.active):hover {
+  background: var(--surface-hover);
+  color: var(--text-primary);
+}
+
+/* Sidebar Bottom */
+.sidebar-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 8px 2px;
+  border-top: 1px solid var(--border-light);
+  margin-top: auto;
+}
+
+.sidebar-bottom-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  transition: all 0.15s ease;
+}
+
+.sidebar-bottom-item:hover {
+  color: var(--text-secondary);
+  background: var(--surface-hover);
+}
+
+.sidebar-bottom-item svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Main Content ── */
+.main-content {
+  overflow-y: auto;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.main-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.main-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+  background: var(--neutral-300);
+  border-radius: var(--radius-full);
+}
+
+/* Welcome Section */
+.welcome-section {
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 56px 32px 40px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.welcome-greeting {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.welcome-subtitle {
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+  margin-bottom: 28px;
+  font-style: normal;
+  font-weight: 400;
+}
+
+/* Quick Actions */
+.quick-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.quick-action-pill {
+  font-size: var(--text-sm);
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-default);
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.quick-action-pill:hover {
+  background: var(--surface-hover);
+  border-color: var(--neutral-300);
+  color: var(--text-primary);
+  transform: translateY(-1px);
+}
+
+/* Content Sections */
+.content-area {
+  width: 100%;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 32px 60px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Pinned Card */
+.pinned-card {
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: 20px 24px;
+  margin-bottom: 36px;
+  border-left: 3px solid var(--brand-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.pinned-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.pinned-emoji {
+  font-size: 28px;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.pinned-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.pinned-title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+  line-height: var(--leading-tight);
+}
+
+.pinned-preview {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.pinned-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pinned-tag {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  background: var(--brand-primary-faint);
+  color: var(--brand-primary-dark);
+}
+
+.pinned-time {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+/* Cards Grid */
+.cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.card {
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.card-emoji {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.card-menu {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.15s ease;
+}
+
+.card:hover .card-menu {
+  opacity: 1;
+}
+
+.card-menu:hover {
+  background: var(--surface-hover);
+  color: var(--text-secondary);
+}
+
+.card-menu svg {
+  width: 16px;
+  height: 16px;
+}
+
+.card-title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.card-preview {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: var(--leading-relaxed);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+  margin-bottom: 14px;
+}
+
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+.card-tag {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  background: var(--surface-hover);
+  color: var(--text-secondary);
+}
+
+.card-tag.tag-efficiency {
+  background: var(--brand-primary-faint);
+  color: var(--brand-primary-dark);
+}
+
+.card-tag.tag-tool {
+  background: #F0FDF4;
+  color: #166534;
+}
+
+.card-tag.tag-star {
+  background: #FFF7ED;
+  color: #9A3412;
+}
+
+.card-tag.tag-reading {
+  background: #EFF6FF;
+  color: #1E40AF;
+}
+
+.card-time {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+}
+
+/* Stats Footer */
+.stats-footer {
+  text-align: center;
+  padding: 20px 0 12px;
+  border-top: 1px solid var(--border-light);
+  margin-top: auto;
+}
+
+.stats-text {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+}
+
+.streak-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 4px;
+}
+
+.streak-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--brand-primary);
+}
+
+.streak-dot.empty {
+  background: var(--neutral-300);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .welcome-section {
+    padding: 40px 24px 28px;
+  }
+
+  .content-area {
+    padding: 0 24px 48px;
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .welcome-section {
+    padding: 32px 20px 24px;
+  }
+
+  .content-area {
+    padding: 0 20px 40px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- ═══ Sidebar ═══ -->
+  <aside class="sidebar">
+
+    <!-- Brand -->
+    <div class="sidebar-top">
+      <img src="../assets/logo.png" alt="Gator" class="sidebar-logo">
+      <div class="sidebar-brand">
+        <span class="sidebar-brand-name">Gator 灵犀</span>
+        <span class="sidebar-brand-sub">我的灵感空间</span>
+      </div>
+    </div>
+
+    <!-- Quick Input -->
+    <div class="quick-input-wrap">
+      <input type="text" class="quick-input" placeholder="快速记录灵感...">
+      <div class="quick-input-icon" title="记录">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="19" x2="12" y2="5"></line>
+          <polyline points="5 12 12 5 19 12"></polyline>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Recent Inspirations -->
+    <div class="section-label">最近灵感</div>
+    <ul class="inspiration-list">
+      <li class="inspiration-item active" data-dom-id="nav-detail">
+        <span class="inspiration-item-emoji">💡</span>
+        <div class="inspiration-item-info">
+          <div class="inspiration-item-title">项目灵感收集方法论</div>
+          <div class="inspiration-item-time">2分钟前</div>
+        </div>
+      </li>
+      <li class="inspiration-item">
+        <span class="inspiration-item-emoji">📸</span>
+        <div class="inspiration-item-info">
+          <div class="inspiration-item-title">多图卡片测试</div>
+          <div class="inspiration-item-time">1小时前</div>
+        </div>
+      </li>
+      <li class="inspiration-item">
+        <span class="inspiration-item-emoji">⚡</span>
+        <div class="inspiration-item-info">
+          <div class="inspiration-item-title">每日效率复盘模板</div>
+          <div class="inspiration-item-time">3小时前</div>
+        </div>
+      </li>
+      <li class="inspiration-item">
+        <span class="inspiration-item-emoji">🛠️</span>
+        <div class="inspiration-item-info">
+          <div class="inspiration-item-title">推荐的开发工具清单</div>
+          <div class="inspiration-item-time">昨天</div>
+        </div>
+      </li>
+      <li class="inspiration-item">
+        <span class="inspiration-item-emoji">📝</span>
+        <div class="inspiration-item-info">
+          <div class="inspiration-item-title">阅读笔记整理技巧</div>
+          <div class="inspiration-item-time">2天前</div>
+        </div>
+      </li>
+      <li class="inspiration-item">
+        <span class="inspiration-item-emoji">⭐</span>
+        <div class="inspiration-item-info">
+          <div class="inspiration-item-title">产品设计灵感</div>
+          <div class="inspiration-item-time">3天前</div>
+        </div>
+      </li>
+    </ul>
+
+    <!-- Divider -->
+    <div class="sidebar-divider"></div>
+
+    <!-- Categories -->
+    <div class="section-label">分类</div>
+    <div class="categories">
+      <button class="category-pill active">全部 (12)</button>
+      <button class="category-pill">⚡ 效率 (5)</button>
+      <button class="category-pill">🛠️ 工具 (3)</button>
+      <button class="category-pill">⭐ 收藏 (2)</button>
+    </div>
+
+    <!-- Bottom -->
+    <div class="sidebar-bottom">
+      <div class="sidebar-bottom-item" data-dom-id="nav-trash">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+        </svg>
+        <span>回收站</span>
+      </div>
+      <div class="sidebar-bottom-item" data-dom-id="nav-settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ═══ Main Content ═══ -->
+  <main class="main-content">
+
+    <!-- Welcome -->
+    <section class="welcome-section">
+      <h1 class="welcome-greeting">你好！</h1>
+      <p class="welcome-subtitle">让我们的灵感有迹可循</p>
+      <div class="quick-actions">
+        <button class="quick-action-pill">记录一个想法 💭</button>
+        <button class="quick-action-pill">整理今日灵感 📋</button>
+        <button class="quick-action-pill">回顾本周笔记 🔄</button>
+      </div>
+    </section>
+
+    <div class="content-area">
+
+      <!-- Pinned -->
+      <div class="section-header">
+        <span class="section-title">📌 置顶灵感</span>
+      </div>
+      <div class="pinned-card" data-dom-id="nav-detail">
+        <span class="pinned-emoji">💡</span>
+        <div class="pinned-body">
+          <div class="pinned-title">项目灵感收集方法论</div>
+          <div class="pinned-preview">灵感不是等来的，而是 systematically 收集来的。建立一个灵感漏斗：从日常观察到深度思考，再到可执行的项目方案。关键在于保持开放心态，随时记录。</div>
+          <div class="pinned-meta">
+            <span class="pinned-tag">方法论</span>
+            <span class="pinned-time">2分钟前</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Cards -->
+      <div class="section-header">
+        <span class="section-title">最近灵感</span>
+      </div>
+      <div class="cards-grid">
+
+        <!-- Card 1 -->
+        <div class="card" data-dom-id="nav-detail">
+          <div class="card-top">
+            <span class="card-emoji">📸</span>
+            <div class="card-menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="1"></circle>
+                <circle cx="19" cy="12" r="1"></circle>
+                <circle cx="5" cy="12" r="1"></circle>
+              </svg>
+            </div>
+          </div>
+          <div class="card-title">多图卡片测试</div>
+          <div class="card-preview">测试在灵感卡片中嵌入多张图片的展示效果，探索图文混排的最佳布局方案。</div>
+          <div class="card-footer">
+            <span class="card-tag tag-star">收藏</span>
+            <span class="card-time">1小时前</span>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="card">
+          <div class="card-top">
+            <span class="card-emoji">⚡</span>
+            <div class="card-menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="1"></circle>
+                <circle cx="19" cy="12" r="1"></circle>
+                <circle cx="5" cy="12" r="1"></circle>
+              </svg>
+            </div>
+          </div>
+          <div class="card-title">每日效率复盘模板</div>
+          <div class="card-preview">日终三问：今天完成了什么？遇到什么阻碍？明天如何改进？持续追踪效率曲线。</div>
+          <div class="card-footer">
+            <span class="card-tag tag-efficiency">效率</span>
+            <span class="card-time">3小时前</span>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="card">
+          <div class="card-top">
+            <span class="card-emoji">🛠️</span>
+            <div class="card-menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="1"></circle>
+                <circle cx="19" cy="12" r="1"></circle>
+                <circle cx="5" cy="12" r="1"></circle>
+              </svg>
+            </div>
+          </div>
+          <div class="card-title">推荐的开发工具清单</div>
+          <div class="card-preview">从编辑器到终端，从设计工具到项目管理，整理出最实用的开发者工具箱。</div>
+          <div class="card-footer">
+            <span class="card-tag tag-tool">工具</span>
+            <span class="card-time">昨天</span>
+          </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="card">
+          <div class="card-top">
+            <span class="card-emoji">📝</span>
+            <div class="card-menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="1"></circle>
+                <circle cx="19" cy="12" r="1"></circle>
+                <circle cx="5" cy="12" r="1"></circle>
+              </svg>
+            </div>
+          </div>
+          <div class="card-title">阅读笔记整理技巧</div>
+          <div class="card-preview">用卡片盒笔记法管理阅读笔记，建立知识之间的链接，让信息真正变成知识。</div>
+          <div class="card-footer">
+            <span class="card-tag tag-reading">阅读</span>
+            <span class="card-time">2天前</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-footer">
+        <span class="stats-text">共 12 条灵感</span>
+      </div>
+
+    </div>
+  </main>
+
+</div>
+
+<!-- Minimal JS for sidebar item click -->
+<script>
+document.querySelectorAll('.inspiration-item').forEach(item => {
+  item.addEventListener('click', function() {
+    document.querySelectorAll('.inspiration-item').forEach(i => i.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+document.querySelectorAll('.category-pill').forEach(pill => {
+  pill.addEventListener('click', function() {
+    document.querySelectorAll('.category-pill').forEach(p => p.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

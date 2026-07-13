@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body { margin: 0; padding-top: 400px; background: #f0f0f0; }
+  #diag { 
+    position: fixed; 
+    top: 0; left: 0; right: 0;
+    background: #ffeb3b; 
+    color: black; 
+    padding: 12px;
+    z-index: 99999;
+    font-size: 13px;
+    line-height: 1.4;
+    font-family: monospace;
+    border: 2px solid red;
+  }
+  iframe { border: none; display: block; background: white; }
+</style>
+</head>
+<body>
+<div id="diag">⏳ 启动诊断...</div>
+<iframe id="app" src="http://localhost:8766/index.html" style="width:100%;height:2000px;"></iframe>
+<script>
+const iframe = document.getElementById('app');
+const diag = document.getElementById('diag');
+let log = '';
+const w = (m) => { log += '<br>› ' + m; diag.innerHTML = log; };
+
+iframe.addEventListener('load', () => {
+  setTimeout(() => {
+    try {
+      const win = iframe.contentWindow;
+      const doc = iframe.contentDocument;
+      
+      // 通过 localStorage 设置 layout
+      win.localStorage.setItem('gator_layout', 'masonry');
+      w('设置 gator_layout=masonry');
+      
+      // 通过切换按钮的 onclick 触发真实流程
+      w('点击切换按钮触发 toggleLayout...');
+      const layoutBtn = doc.querySelector('[onclick*="toggleLayout"]');
+      if (layoutBtn) {
+        layoutBtn.click();
+        w('已点击布局按钮');
+      }
+      
+      setTimeout(() => {
+        const wraps = doc.querySelectorAll('.card-image-wrap');
+        w('---');
+        w('card-image-wrap 数量 = ' + wraps.length);
+        
+        if (wraps.length > 0) {
+          const wrap = wraps[0];
+          const slider = wrap.querySelector('.card-img-slider');
+          const img = wrap.querySelector('.card-img-slider img');
+          w('wrap: ' + Math.round(wrap.getBoundingClientRect().width) + 'x' + Math.round(wrap.getBoundingClientRect().height));
+          w('slider: ' + slider.offsetWidth + 'x' + slider.offsetHeight);
+          w('img: ' + img.offsetWidth + 'x' + img.offsetHeight);
+          w('img computed width: ' + getComputedStyle(img).width);
+          w('img inline style: "' + img.getAttribute('style') + '"');
+        }
+      }, 2000);
+    } catch(e) { w('ERROR: ' + e.message); }
+  }, 4000);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body { margin: 0; padding: 0; }
+  #diag { 
+    position: fixed; 
+    top: 0; left: 0; right: 0;
+    background: #ffeb3b; 
+    color: black; 
+    padding: 12px;
+    z-index: 99999;
+    font-size: 12px;
+    line-height: 1.4;
+    font-family: monospace;
+    border: 2px solid red;
+    max-height: 280px;
+    overflow: auto;
+  }
+  iframe { border: none; display: block; margin-top: 280px; }
+</style>
+</head>
+<body>
+<div id="diag">⏳ 启动诊断...</div>
+<iframe id="app" src="http://localhost:8766/index.html" style="width:100%;height:1500px;"></iframe>
+<script>
+const iframe = document.getElementById('app');
+const diag = document.getElementById('diag');
+let log = '';
+const w = (m) => { log += '<br>› ' + m; diag.innerHTML = log; };
+
+iframe.addEventListener('load', () => {
+  setTimeout(() => {
+    try {
+      const win = iframe.contentWindow;
+      const doc = iframe.contentDocument;
+      
+      // 清理 localStorage 重新开始
+      win.localStorage.removeItem('gator_items_v4');
+      win.localStorage.setItem('gator_layout', 'masonry');
+      w('清理旧数据，刷新页面...');
+      
+      iframe.src = iframe.src + '?t=' + Date.now();
+    } catch(e) { w('ERROR: ' + e.message); }
+  }, 3000);
+});
+
+// 页面刷新后再次诊断
+let firstLoad = true;
+iframe.addEventListener('load', () => {
+  if (firstLoad) { firstLoad = false; return; }
+  
+  setTimeout(() => {
+    try {
+      const win = iframe.contentWindow;
+      const doc = iframe.contentDocument;
+      
+      w('--- 页面已刷新 ---');
+      
+      // 等待 DOMContentLoaded
+      setTimeout(() => {
+        // 现在点击"分类与灵感"
+        const btn = doc.querySelector('button[onclick*="addDemoData"]');
+        if (btn) {
+          btn.click();
+          w('点击了 addDemoData');
+        } else {
+          w('找不到 addDemoData 按钮');
+        }
+        
+        setTimeout(() => {
+          // 检查 .card-image-wrap
+          const wraps = doc.querySelectorAll('.card-image-wrap');
+          w('card-image-wrap 数量: ' + wraps.length);
+          
+          if (wraps.length > 0) {
+            const wrap = wraps[0];
+            const slider = wrap.querySelector('.card-img-slider');
+            const img = wrap.querySelector('.card-img-slider img');
+            w('wrap: ' + Math.round(wrap.getBoundingClientRect().width) + 'x' + Math.round(wrap.getBoundingClientRect().height));
+            w('slider: ' + slider.offsetWidth + 'x' + slider.offsetHeight);
+            w('img: ' + img.offsetWidth + 'x' + img.offsetHeight);
+            w('img computed: width=' + getComputedStyle(img).width + ' flex=' + getComputedStyle(img).flex);
+          } else {
+            // 检查为什么没渲染
+            const cards = doc.querySelectorAll('.card-wrapper');
+            w('card-wrapper 数量: ' + cards.length);
+            if (cards.length > 0) {
+              w('第一个 card 的 innerHTML 长度: ' + cards[0].innerHTML.length);
+              w('第一个 card 的 innerHTML 前 300: ' + cards[0].innerHTML.substring(0, 300));
+            }
+          }
+        }, 1500);
+      }, 500);
+    } catch(e) { w('ERROR: ' + e.message); }
+  }, 1500);
+});
+</script>
+</body>
+</html>

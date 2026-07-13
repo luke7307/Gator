@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>body{margin:0}iframe{border:none;display:block;width:100%;height:100vh}</style>
+</head>
+<body>
+<iframe id="app" src="http://localhost:8766/index.html"></iframe>
+<script>
+const iframe = document.getElementById('app');
+iframe.addEventListener('load', () => {
+  setTimeout(() => {
+    const doc = iframe.contentDocument;
+    const win = iframe.contentWindow;
+    // 关闭 banner（点击 X）
+    const closeBtn = doc.querySelector('button[onclick*="closeBanner"]');
+    if (closeBtn) closeBtn.click();
+    
+    // 滚到下方找带图卡片
+    setTimeout(() => {
+      // 找带图卡的尺寸
+      const containers = doc.querySelectorAll('.card-img-container');
+      console.log('card-img-container 数量:', containers.length);
+      if (containers.length > 0) {
+        console.log('第一个尺寸:', containers[0].offsetWidth, 'x', containers[0].offsetHeight);
+      }
+      // 滚到 1500px
+      win.scrollTo(0, 1800);
+    }, 500);
+  }, 2000);
+});
+</script>
+</body>
+</html>

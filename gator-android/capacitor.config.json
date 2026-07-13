@@ -1,0 +1,8 @@
+{
+  "appId": "com.gator.app",
+  "appName": "Gator",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  }
+}

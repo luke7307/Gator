@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+</head>
+<body style="margin:0;">
+<script>
+  try {
+    localStorage.setItem('gator_layout', 'masonry');
+  } catch(e) {}
+</script>
+<iframe id="app" src="http://localhost:8766/index.html" style="width:430px;height:1100px;border:none;display:block;"></iframe>
+<script>
+  const iframe = document.getElementById('app');
+  iframe.addEventListener('load', () => {
+    setTimeout(() => {
+      try {
+        const w = iframe.contentWindow;
+        // 添加示例数据
+        if (w.addDemoData) w.addDemoData();
+      } catch(e) { console.error(e); }
+    }, 1500);
+  });
+</script>
+</body>
+</html>

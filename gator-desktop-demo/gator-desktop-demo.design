@@ -1,0 +1,136 @@
+{
+  "data": [
+    {
+      "id": "page-main",
+      "title": "Main View (Notion Style)",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1752384000000,
+      "canvasData": {
+        "x": 0,
+        "y": 1131,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/main.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-detail",
+      "title": "Detail / Editor View (Notion)",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1752384000000,
+      "canvasData": {
+        "x": 620,
+        "y": 1131,
+        "group": 0
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/detail.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-claude-fusion",
+      "title": "Claude Fusion (Warm Style)",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1752385000000,
+      "canvasData": {
+        "x": 0,
+        "y": 0,
+        "group": 1
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/claude-fusion.html",
+        "interactions": [
+          {
+            "trigger": "click",
+            "sourceDomId": "nav-detail",
+            "targetPageId": "page-detail-warm"
+          },
+          {
+            "trigger": "click",
+            "sourceDomId": "nav-settings",
+            "targetPageId": "page-settings-warm"
+          },
+          {
+            "trigger": "click",
+            "sourceDomId": "nav-trash",
+            "targetPageId": "page-trash-warm"
+          }
+        ]
+      }
+    },
+    {
+      "id": "page-detail-warm",
+      "title": "灵感详情 (Warm)",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1752386000000,
+      "canvasData": {
+        "x": 620,
+        "y": 0,
+        "group": 1
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/detail-warm.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-settings-warm",
+      "title": "设置 (Warm)",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1752386000000,
+      "canvasData": {
+        "x": 620,
+        "y": 377,
+        "group": 2
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/settings-warm.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "page-trash-warm",
+      "title": "回收站 (Warm)",
+      "type": "page",
+      "version": 1,
+      "createdAt": 1752386000000,
+      "canvasData": {
+        "x": 620,
+        "y": 754,
+        "group": 2
+      },
+      "devMetadata": {
+        "htmlSrc": "pages/trash-warm.html",
+        "interactions": []
+      }
+    },
+    {
+      "id": "image-logo",
+      "title": "Gator Logo",
+      "type": "image",
+      "version": 1,
+      "createdAt": 1752384000000,
+      "canvasData": {
+        "x": 0,
+        "y": 1508
+      },
+      "devMetadata": {
+        "imageSrc": "assets/logo.png"
+      }
+    }
+  ],
+  "config": {
+    "autoLayout": true,
+    "deviceType": "desktop",
+    "projectName": "Gator Desktop Demo",
+    "designLibrary": null
+  }
+}

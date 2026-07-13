@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gator · 信息效率工具箱 | Trae AI 创造力大赛参赛作品</title>
+<script>
+(function() {
+    var T = {
+        blue:   { primary:'#3B82F6', primaryDark:'#2563EB', primaryLight:'#DBEAFE', primaryFaint:'#EFF6FF', bg:'#F8FAFC', comp:'#F97316', compDark:'#EA580C' },
+        purple: { primary:'#8B5CF6', primaryDark:'#7C3AED', primaryLight:'#EDE9FE', primaryFaint:'#F5F3FF', bg:'#FAFAFC', comp:'#F59E0B', compDark:'#D97706' },
+        green:  { primary:'#10B981', primaryDark:'#059669', primaryLight:'#D1FAE5', primaryFaint:'#ECFDF5', bg:'#F5FAF8', comp:'#8B5CF6', compDark:'#7C3AED' },
+        orange: { primary:'#F59E0B', primaryDark:'#D97706', primaryLight:'#FEF3C7', primaryFaint:'#FFFBEB', bg:'#FBFAF5', comp:'#3B82F6', compDark:'#2563EB' },
+        pink:   { primary:'#EC4899', primaryDark:'#DB2777', primaryLight:'#FCE7F3', primaryFaint:'#FDF2F8', bg:'#FBF7FA', comp:'#14B8A6', compDark:'#0D9488' }
+    };
+    var cur = T.blue;
+    var s = document.documentElement.style;
+    function apply(t) { cur = t;
+        s.setProperty('--theme-primary', t.primary); s.setProperty('--theme-primary-dark', t.primaryDark);
+        s.setProperty('--theme-primary-light', t.primaryLight); s.setProperty('--theme-primary-faint', t.primaryFaint);
+        s.setProperty('--theme-complementary', t.comp); s.setProperty('--theme-complementary-dark', t.compDark);
+        s.setProperty('--app-bg', t.bg);
+    }
+    apply(cur);
+    window._setTheme = function(key) { if (T[key]) apply(T[key]); };
+})();
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+html,body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial,sans-serif;background:var(--app-bg);color:#1F2937;-webkit-font-smoothing:antialiased;scroll-behavior:smooth;}
+.hero-grad{background:linear-gradient(135deg,var(--theme-primary) 0%,var(--theme-primary-dark) 55%,#1E40AF 100%);}
+.hero-grad-text{background:linear-gradient(135deg,var(--theme-primary),var(--theme-complementary));-webkit-background-clip:text;background-clip:text;color:transparent;}
+.glass-card{background:rgba(255,255,255,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.6);}
+.glass-dark{background:rgba(17,24,39,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);}
+.feature-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;background:var(--theme-primary-light);color:var(--theme-primary-dark);}
+.arrow-link{display:inline-flex;align-items:center;gap:6px;color:var(--theme-primary);font-weight:500;transition:gap .25s;}
+.arrow-link:hover{gap:12px;}
+.section-title{font-size:clamp(24px,3.5vw,36px);font-weight:700;letter-spacing:-0.02em;}
+.num-counter{font-variant-numeric:tabular-nums;font-weight:700;font-size:clamp(36px,5vw,56px);letter-spacing:-0.03em;}
+code.inline{background:#F1F5F9;padding:2px 8px;border-radius:6px;font-family:"SF Mono","Menlo",monospace;font-size:0.9em;color:#334155;}
+pre.code-block{background:#0F172A;color:#E2E8F0;padding:20px 24px;border-radius:16px;overflow-x:auto;font-family:"SF Mono","Menlo",monospace;font-size:13px;line-height:1.7;}
+pre.code-block .k{color:#818CF8;}pre.code-block .s{color:#FBBF24;}pre.code-block .c{color:#64748B;font-style:italic;}pre.code-block .n{color:#34D399;}
+.bounce-in{animation:bounceIn .6s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes bounceIn{0%{transform:scale(.8);opacity:0;}100%{transform:scale(1);opacity:1;}}
+.reveal{opacity:0;transform:translateY(20px);transition:all .8s cubic-bezier(0.16,1,0.3,1);}
+.reveal.visible{opacity:1;transform:translateY(0);}
+.logo-circle{width:56px;height:56px;border-radius:9999px;background:linear-gradient(135deg,var(--theme-primary),var(--theme-primary-dark));display:flex;align-items:center;justify-content:center;box-shadow:0 8px 24px rgba(59,130,246,.3);}
+.tag-chip{display:inline-block;padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:500;background:var(--theme-primary-faint);color:var(--theme-primary-dark);}
+.step-num{width:44px;height:44px;border-radius:9999px;background:linear-gradient(135deg,var(--theme-primary),var(--theme-primary-dark));color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 4px 16px rgba(59,130,246,.35);}
+.dot-pattern{background-image:radial-gradient(circle,rgba(59,130,246,.15) 1px,transparent 1px);background-size:24px 24px;}
+.quote-card{position:relative;padding:32px;background:#fff;border-radius:24px;box-shadow:0 4px 16px rgba(0,0,0,.04);}
+.quote-card::before{content:"";position:absolute;top:24px;left:28px;font-size:80px;color:var(--theme-primary-light);font-family:Georgia,serif;line-height:1;}
+.progress-bar{height:6px;border-radius:9999px;background:#E5E7EB;overflow:hidden;}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--theme-primary),var(--theme-complementary));border-radius:9999px;transition:width 1.5s cubic-bezier(0.16,1,0.3,1);}
+.shimmer{background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.4) 50%,transparent 70%);background-size:200% 100%;animation:shimmer 3s infinite;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+.grid-bg{background:linear-gradient(135deg,#EFF6FF,#F8FAFC);}
+.btn-primary{background:linear-gradient(135deg,var(--theme-primary),var(--theme-primary-dark));color:#fff;padding:14px 28px;border-radius:9999px;font-weight:500;transition:all .25s;box-shadow:0 6px 20px rgba(59,130,246,.35);display:inline-flex;align-items:center;gap:8px;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(59,130,246,.45);}
+.btn-ghost{background:#fff;color:#374151;padding:14px 28px;border-radius:9999px;font-weight:500;transition:all .25s;border:1px solid #E5E7EB;display:inline-flex;align-items:center;gap:8px;}
+.btn-ghost:hover{border-color:var(--theme-primary);color:var(--theme-primary-dark);}
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav class="sticky top-0 z-50 glass-card">
+    <div class="max-w-6xl mx-auto px-6 py-3 flex items-center justify-between">
+        <a href="#top" class="flex items-center gap-2.5">
+            <div class="logo-circle" style="width:36px;height:36px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M20 12a8 8 0 1 1 -5.5 -7.65"/><circle cx="17.5" cy="6.5" r="2" fill="#F97316" stroke="#F97316"/></svg>
+            </div>
+            <span class="font-bold text-gray-900">Gator</span>
+            <span class="text-xs text-gray-500 hidden sm:inline">信息效率工具箱</span>
+        </a>
+        <div class="hidden md:flex items-center gap-6 text-sm text-gray-600">
+            <a href="#story" class="hover:text-gray-900 transition">项目故事</a>
+            <a href="#demo" class="hover:text-gray-900 transition">产品演示</a>
+            <a href="#ai" class="hover:text-gray-900 transition">AI 协作</a>
+            <a href="#tech" class="hover:text-gray-900 transition">技术架构</a>
+        </div>
+        <a href="gator-showcase.html" class="text-sm font-medium text-gray-700 hover:text-gray-900 transition hidden sm:block">查看完整演示 →</a>
+    </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section id="top" class="hero-grad text-white relative overflow-hidden">
+    <div class="absolute inset-0 dot-pattern opacity-20"></div>
+    <div class="absolute top-0 right-0 w-[500px] h-[500px] rounded-full" style="background:radial-gradient(circle,rgba(249,115,22,.4),transparent 70%);transform:translate(30%,-30%);"></div>
+    <div class="max-w-6xl mx-auto px-6 py-20 md:py-28 relative">
+        <div class="inline-flex items-center gap-2 bg-white/15 backdrop-blur px-4 py-2 rounded-full text-sm mb-8 border border-white/20">
+            <span class="w-2 h-2 rounded-full bg-orange-300 animate-pulse"></span>
+            Trae AI 创造力大赛 · 参赛作品
+        </div>
+        <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-6 tracking-tight">
+            把每一个闪现的灵感<br>
+            <span style="color:#FED7AA;">稳稳收进来</span>
+        </h1>
+        <p class="text-lg md:text-xl text-white/80 max-w-2xl leading-relaxed mb-10">
+            一个人的信息效率工具箱，也是一次关于 AI 时代「信息获取 vs 信息创造」的小小反叛。<br>
+            纯前端 · 零后端 · 零构建 · 数据不出设备
+        </p>
+        <div class="flex flex-wrap gap-3 mb-12">
+            <a href="#demo" class="bg-white text-gray-900 px-6 py-3.5 rounded-full font-medium hover:bg-gray-50 transition inline-flex items-center gap-2 shadow-lg">
+                <span>查看产品演示</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+            </a>
+            <a href="#ai" class="bg-white/10 backdrop-blur text-white px-6 py-3.5 rounded-full font-medium hover:bg-white/20 transition inline-flex items-center gap-2 border border-white/25">
+                <span>了解 AI 协作方式</span>
+            </a>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8 border-t border-white/20">
+            <div><div class="num-counter text-white">7000<span class="text-2xl">+</span></div><div class="text-sm text-white/70 mt-1">行纯 JavaScript 代码</div></div>
+            <div><div class="num-counter text-white">&lt;100<span class="text-2xl">ms</span></div><div class="text-sm text-white/70 mt-1">首屏加载时间</div></div>
+            <div><div class="num-counter text-white">3<span class="text-2xl">端</span></div><div class="text-sm text-white/70 mt-1">一套代码同时运行</div></div>
+            <div><div class="num-counter text-white">1<span class="text-2xl">人</span></div><div class="text-sm text-white/70 mt-1">独立开发者 + AI 协作</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ 项目故事 ============ -->
+<section id="story" class="max-w-6xl mx-auto px-6 py-20">
+    <div class="grid md:grid-cols-2 gap-16 items-start">
+        <div class="reveal">
+            <span class="tag-chip mb-4 inline-block">项目故事</span>
+            <h2 class="section-title text-gray-900 mb-6">在 AI 能回答一切的时代，<br>真正稀缺的是你的问题。</h2>
+            <p class="text-gray-600 leading-relaxed mb-5">
+                每一个灵感闪现的瞬间——地铁上看到一句有共鸣的话、开会时闪过一个产品 idea、凌晨两点突然对一个算法有了新的理解——这些碎片如果不能被即时捕获，99% 都会永远消失。
+            </p>
+            <p class="text-gray-600 leading-relaxed mb-5">
+                现有的笔记工具要么太重（Notion、Obsidian），要么太封闭（苹果备忘录），要么太像待办清单。它们都要求你先成为一个"笔记系统设计师"，然后才能开始写笔记。
+            </p>
+            <p class="text-gray-600 leading-relaxed">
+                <strong class="text-gray-900">Gator 的回答是：打开即写，写完即走。</strong> 它不是一个"笔记 App"，而是一个"灵感容器"——当想法闪现的那一秒，你只需要 3 秒就能把它放进来。
+            </p>
+        </div>
+
+        <div class="reveal">
+            <div class="grid grid-cols-1 gap-4">
+                <div class="quote-card">
+                    <div class="flex items-start gap-4 relative z-10">
+                        <div class="feature-icon flex-shrink-0">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><circle cx="17.5" cy="6.5" r="1.5" fill="currentColor"/></svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900 mb-1">轻量</h4>
+                            <p class="text-sm text-gray-600">不注册、不登录、不云同步。首屏 <100ms 加载，零摩擦启动。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="quote-card">
+                    <div class="flex items-start gap-4 relative z-10">
+                        <div class="feature-icon flex-shrink-0" style="background:#FEF3C7;color:#D97706;">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="12" cy="12" r="2" fill="currentColor"/></svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900 mb-1">可分类</h4>
+                            <p class="text-sm text-gray-600">emoji 图标 + 分类标签 + 颜色编码，每条灵感一眼可辨。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="quote-card">
+                    <div class="flex items-start gap-4 relative z-10">
+                        <div class="feature-icon flex-shrink-0" style="background:#D1FAE5;color:#059669;">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7h18M3 12h18M3 17h12"/></svg>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-gray-900 mb-1">视觉友好</h4>
+                            <p class="text-sm text-gray-600">卡片式布局、瀑布流、图片预览、弹性动效——以最舒适的方式呈现信息。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ 产品演示区 ============ -->
+<section id="demo" class="grid-bg py-20">
+    <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center mb-12 reveal">
+            <span class="tag-chip mb-4 inline-block">产品演示</span>
+            <h2 class="section-title text-gray-900">一个完整但不复杂的灵感工具箱</h2>
+            <p class="text-gray-500 mt-4 text-lg">卡片 CRUD · 图片查看器 · 主题切换 · 富文本编辑 · 多笔记簿</p>
+        </div>
+
+        <!-- Features Grid -->
+        <div class="grid md:grid-cols-3 gap-5 mb-10">
+            <div class="bg-white rounded-3xl p-7 shadow-sm border border-gray-100 hover:shadow-lg transition reveal">
+                <div class="feature-icon mb-5"><span class="text-2xl">📝</span></div>
+                <h3 class="font-bold text-gray-900 text-lg mb-2">灵感卡片</h3>
+                <p class="text-sm text-gray-600 leading-relaxed">每条灵感 = 一张卡片，emoji + 标题 + 正文 + 标签 + 时间戳，瀑布流/列表双布局一键切换。</p>
+            </div>
+            <div class="bg-white rounded-3xl p-7 shadow-sm border border-gray-100 hover:shadow-lg transition reveal">
+                <div class="feature-icon mb-5" style="background:#DBEAFE;color:#2563EB;"><span class="text-2xl">🖼️</span></div>
+                <h3 class="font-bold text-gray-900 text-lg mb-2">图片查看器</h3>
+                <p class="text-sm text-gray-600 leading-relaxed">点击进入全屏高斯模糊背景查看，支持缩放、旋转、切换、下载。玻璃拟态工具栏 + 弹性动效。</p>
+            </div>
+            <div class="bg-white rounded-3xl p-7 shadow-sm border border-gray-100 hover:shadow-lg transition reveal">
+                <div class="feature-icon mb-5" style="background:#FEF3C7;color:#D97706;"><span class="text-2xl">🎨</span></div>
+                <h3 class="font-bold text-gray-900 text-lg mb-2">8 套主题</h3>
+                <p class="text-sm text-gray-600 leading-relaxed">纯 CSS 变量主题系统，切换在 1 帧内完成，不闪烁不抖动。蓝紫绿橙粉红青暗任意切换。</p>
+            </div>
+            <div class="bg-white rounded-3xl p-7 shadow-sm border border-gray-100 hover:shadow-lg transition reveal">
+                <div class="feature-icon mb-5" style="background:#D1FAE5;color:#059669;"><span class="text-2xl">🔍</span></div>
+                <h3 class="font-bold text-gray-900 text-lg mb-2">全文搜索</h3>
+                <p class="text-sm text-gray-600 leading-relaxed">关键词搜索标题与正文，分类标签快速筛选，结果即时更新无需等待。</p>
+            </div>
+            <div class="bg-white rounded-3xl p-7 shadow-sm border border-gray-100 hover:shadow-lg transition reveal">
+                <div class="feature-icon mb-5" style="background:#EDE9FE;color:#7C3AED;"><span class="text-2xl">📌</span></div>
+                <h3 class="font-bold text-gray-900 text-lg mb-2">置顶 · 回收站</h3>
+                <p class="text-sm text-gray-600 leading-relaxed">重要灵感置顶（互补色泛光提示），30 天自动清理的回收站，随时可单条恢复。</p>
+            </div>
+            <div class="bg-white rounded-3xl p-7 shadow-sm border border-gray-100 hover:shadow-lg transition reveal">
+                <div class="feature-icon mb-5" style="background:#FCE7F3;color:#DB2777;"><span class="text-2xl">📚</span></div>
+                <h3 class="font-bold text-gray-900 text-lg mb-2">多笔记簿</h3>
+                <p class="text-sm text-gray-600 leading-relaxed">工作/生活/学习互相隔离，独立存储，避免信息混在一起。</p>
+            </div>
+        </div>
+
+        <!-- Demo CTA -->
+        <div class="text-center reveal">
+            <a href="gator-showcase.html" class="btn-primary">
+                <span>打开可交互演示页</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+            </a>
+            <p class="text-sm text-gray-500 mt-4">演示页包含真实交互：卡片浏览 · 图片查看器 · 主题切换 · 搜索过滤</p>
+        </div>
+    </div>
+</section>
+
+<!-- ============ AI 协作叙事核心 ============ -->
+<section id="ai" class="max-w-6xl mx-auto px-6 py-20">
+    <div class="text-center mb-14 reveal">
+        <span class="tag-chip mb-4 inline-block" style="background:#FEF3C7;color:#D97706;">AI 协作方式</span>
+        <h2 class="section-title text-gray-900 mb-4">一个人 + AI = 一个虚拟小团队</h2>
+        <p class="text-gray-500 text-lg max-w-2xl mx-auto">大多数 AI 开发演示停留在"生成一个函数"或"写一个 Landing Page"。Gator 展示了全流程的可能性。</p>
+    </div>
+
+    <!-- 5 roles -->
+    <div class="space-y-5 mb-14">
+        <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 flex items-start gap-5 reveal">
+            <div class="step-num">1</div>
+            <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2 flex-wrap">
+                    <h3 class="font-bold text-gray-900 text-xl">产品经理</h3>
+                    <span class="tag-chip" style="background:#EFF6FF;color:#2563EB;">产品定位 · 功能定义</span>
+                </div>
+                <p class="text-gray-600 leading-relaxed">从"一个灵感聚合器"到完整的产品哲学三原则（轻量 / 可分类 / 视觉友好）。输出 <code class="inline">GATOR_PRODUCT_BRAND_REPORT.md</code> 800 行规格文档。</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 flex items-start gap-5 reveal">
+            <div class="step-num" style="background:linear-gradient(135deg,#10B981,#059669);box-shadow:0 4px 16px rgba(16,185,129,.35);">2</div>
+            <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2 flex-wrap">
+                    <h3 class="font-bold text-gray-900 text-xl">UI 设计师</h3>
+                    <span class="tag-chip" style="background:#D1FAE5;color:#059669;">设计语言 · 动效体系</span>
+                </div>
+                <p class="text-gray-600 leading-relaxed">输出 8 套主题色体系、圆角/阴影/字体规范、玻璃拟态工具栏、FAB 呼吸按钮、弹性动效曲线 <code class="inline">cubic-bezier(0.34, 1.56, 0.64, 1)</code>。全部是可直接代码化的规格参数。</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 flex items-start gap-5 reveal">
+            <div class="step-num" style="background:linear-gradient(135deg,#8B5CF6,#7C3AED);box-shadow:0 4px 16px rgba(139,92,246,.35);">3</div>
+            <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2 flex-wrap">
+                    <h3 class="font-bold text-gray-900 text-xl">前端工程师</h3>
+                    <span class="tag-chip" style="background:#EDE9FE;color:#7C3AED;">架构 · 实现 · 跨平台</span>
+                </div>
+                <p class="text-gray-600 leading-relaxed">从 0 行到 ~7000 行的纯 JavaScript 应用。Markdown ↔ HTML 双向转换 1500+ 行；图片查看器、富文本编辑器、搜索过滤、主题切换、Capacitor/Electron 双端适配。</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 flex items-start gap-5 reveal">
+            <div class="step-num" style="background:linear-gradient(135deg,#F59E0B,#D97706);box-shadow:0 4px 16px rgba(245,158,11,.35);">4</div>
+            <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2 flex-wrap">
+                    <h3 class="font-bold text-gray-900 text-xl">QA 工程师</h3>
+                    <span class="tag-chip" style="background:#FEF3C7;color:#D97706;">复现 · 定位 · 修复</span>
+                </div>
+                <p class="text-gray-600 leading-relaxed">浏览器会话监控复现用户操作流。定位触控板横滑力矩 Bug（锁期间 accumX 仍在累加 → 引入时间窗口算法）；重写 note 模式索引同步（闭包局部变量 → 全局同步对象 <code class="inline">window._notePreviewSync</code>）。</p>
+            </div>
+        </div>
+        <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 flex items-start gap-5 reveal">
+            <div class="step-num" style="background:linear-gradient(135deg,#EC4899,#DB2777);box-shadow:0 4px 16px rgba(236,72,153,.35);">5</div>
+            <div class="flex-1">
+                <div class="flex items-center gap-3 mb-2 flex-wrap">
+                    <h3 class="font-bold text-gray-900 text-xl">品牌设计师</h3>
+                    <span class="tag-chip" style="background:#FCE7F3;color:#DB2777;">品牌语义 · Logo 方向</span>
+                </div>
+                <p class="text-gray-600 leading-relaxed">重新定义 "Gator" 语义（短吻鳄 → Gather 聚合），构建四层语义矩阵（Gather → Gateway → Generator → Guardian），输出 4 个 Logo 设计方向与完整品牌关键词系统。</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI 协作故事对比 -->
+    <div class="grid md:grid-cols-2 gap-6">
+        <div class="bg-gradient-to-br from-gray-50 to-white rounded-3xl p-8 border border-gray-200 reveal">
+            <div class="text-sm text-gray-500 font-medium mb-3">传统开发方式</div>
+            <h4 class="font-bold text-gray-700 text-lg mb-5">几个人 + 几周</h4>
+            <div class="space-y-3 text-sm text-gray-600">
+                <div class="flex items-start gap-3"><span class="text-gray-400">→</span><span>设计稿 → 前端还原 → 偏差不可避免</span></div>
+                <div class="flex items-start gap-3"><span class="text-gray-400">→</span><span>复现 → 定位 → 假设 → 验证 → 失败重试（几小时到几天）</span></div>
+                <div class="flex items-start gap-3"><span class="text-gray-400">→</span><span>品牌设计师 → 几轮改稿 → 两周到两个月</span></div>
+                <div class="flex items-start gap-3"><span class="text-gray-400">→</span><span>为每个平台独立开发或维护框架</span></div>
+            </div>
+        </div>
+        <div class="hero-grad rounded-3xl p-8 text-white reveal">
+            <div class="text-sm text-white/70 font-medium mb-3">Gator 的 AI 协作方式</div>
+            <h4 class="font-bold text-white text-lg mb-5">一个人 + 几天</h4>
+            <div class="space-y-3 text-sm text-white/90">
+                <div class="flex items-start gap-3"><span style="color:#FED7AA;">→</span><span>AI 直接输出 CSS 变量和动画参数，代码即设计稿</span></div>
+                <div class="flex items-start gap-3"><span style="color:#FED7AA;">→</span><span>对话内完成假设-验证循环（几分钟到几十分钟）</span></div>
+                <div class="flex items-start gap-3"><span style="color:#FED7AA;">→</span><span>产品迭代中并行产出品牌文档，几小时内</span></div>
+                <div class="flex items-start gap-3"><span style="color:#FED7AA;">→</span><span>一套 HTML/JS，AI 保证 Capacitor & Electron 行为一致</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ 技术架构 ============ -->
+<section id="tech" class="bg-gray-900 text-white py-20 relative overflow-hidden">
+    <div class="absolute inset-0 dot-pattern opacity-5"></div>
+    <div class="max-w-6xl mx-auto px-6 relative">
+        <div class="text-center mb-14 reveal">
+            <span class="tag-chip mb-4 inline-block" style="background:rgba(59,130,246,.15);color:#93C5FD;">技术架构</span>
+            <h2 class="section-title text-white">克制的技术选择，<br>本身就是一种创新</h2>
+        </div>
+
+        <!-- Architecture Diagram -->
+        <div class="grid md:grid-cols-4 gap-4 mb-12">
+            <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 reveal">
+                <div class="text-xs text-blue-300 font-semibold mb-2 tracking-wider">表现层</div>
+                <div class="font-bold text-lg mb-2">View</div>
+                <div class="text-sm text-gray-400 leading-relaxed">HTML5 + Tailwind CSS (CDN) + 原生 CSS 变量</div>
+            </div>
+            <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 reveal">
+                <div class="text-xs text-purple-300 font-semibold mb-2 tracking-wider">逻辑层</div>
+                <div class="font-bold text-lg mb-2">Logic</div>
+                <div class="text-sm text-gray-400 leading-relaxed">纯 JavaScript (ES6+)，函数式 + 全局状态，~7000 行单文件</div>
+            </div>
+            <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 reveal">
+                <div class="text-xs text-green-300 font-semibold mb-2 tracking-wider">存储层</div>
+                <div class="font-bold text-lg mb-2">Storage</div>
+                <div class="text-sm text-gray-400 leading-relaxed">localStorage（浏览器原生），JSON 序列化，数据不出设备</div>
+            </div>
+            <div class="bg-white/5 backdrop-blur border border-white/10 rounded-2xl p-6 reveal">
+                <div class="text-xs text-orange-300 font-semibold mb-2 tracking-wider">平台封装</div>
+                <div class="font-bold text-lg mb-2">Platform</div>
+                <div class="text-sm text-gray-400 leading-relaxed">Android: Capacitor WebView · 桌面端: Electron · 网页端: 直开</div>
+            </div>
+        </div>
+
+        <!-- Code examples -->
+        <div class="grid md:grid-cols-2 gap-5">
+            <div class="reveal">
+                <div class="text-xs text-gray-400 mb-2 font-medium tracking-wider">CSS 变量主题系统 · 1 帧切换</div>
+<pre class="code-block"><span class="c">/* 主题切换只需切换 5-6 个变量 */</span>
+<span class="k">--theme-primary</span>: <span class="s">#3B82F6</span>;
+<span class="k">--theme-primary-dark</span>: <span class="s">#2563EB</span>;
+<span class="k">--theme-primary-light</span>: <span class="s">#DBEAFE</span>;
+<span class="k">--theme-complementary</span>: <span class="s">#F97316</span>;
+<span class="k">--app-bg</span>: <span class="s">#EFF6FF</span>;
+
+<span class="c">/* 全局使用，不重绘 */</span>
+.button { <span class="n">background</span>: <span class="k">--theme-primary</span>; }
+.card   { <span class="n">box-shadow</span>: 0 4px 12px
+                       rgba(<span class="k">--theme-primary</span>, .15); }</pre>
+            </div>
+            <div class="reveal">
+                <div class="text-xs text-gray-400 mb-2 font-medium tracking-wider">玻璃拟态 + 弹性动效</div>
+<pre class="code-block"><span class="c">/* 玻璃工具栏 */</span>
+<span class="n">backdrop-filter</span>: <span class="k">blur</span>(14px);
+<span class="n">background</span>: <span class="k">rgba</span>(255,255,255,0.22);
+
+<span class="c">/* 弹性动画曲线 - 弹一下 */</span>
+<span class="n">transition</span>: <span class="k">transform</span> .25s
+  <span class="k">cubic-bezier</span>(0.34, 1.56, 0.64, 1);
+
+<span class="c">/* FAB 呼吸阴影 */</span>
+<span class="k">@keyframes</span> fab-pulse {
+  0%,100% { box-shadow: 0 6px 20px
+                      rgba(59,130,246,.35); }
+  50%     { box-shadow: 0 6px 26px
+                      rgba(59,130,246,.55); }
+}</pre>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ 获奖理由 ============ -->
+<section class="max-w-6xl mx-auto px-6 py-20">
+    <div class="text-center mb-12 reveal">
+        <span class="tag-chip mb-4 inline-block" style="background:#FCE7F3;color:#DB2777;">为什么值得获奖</span>
+        <h2 class="section-title text-gray-900">三个理由</h2>
+    </div>
+
+    <div class="space-y-5">
+        <div class="bg-gradient-to-br from-blue-50 via-white to-white rounded-3xl p-8 md:p-10 border border-blue-100 reveal">
+            <div class="flex items-start gap-6">
+                <div class="text-5xl font-bold hero-grad-text flex-shrink-0">01</div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-xl text-gray-900 mb-3">AI 时代「个人开发者能做什么」的完整演示</h3>
+                    <p class="text-gray-600 leading-relaxed">从产品定位 → 品牌设计 → 前端架构 → 全功能实现 → 跨平台打包 → 持续迭代，这是一条完整的、可复制的路径。产生的不只是 ~9000 行代码，还有完整的产品文档、品牌规范、Logo 方向。</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gradient-to-br from-orange-50 via-white to-white rounded-3xl p-8 md:p-10 border border-orange-100 reveal">
+            <div class="flex items-start gap-6">
+                <div class="text-5xl font-bold flex-shrink-0" style="background:linear-gradient(135deg,#F59E0B,#EA580C);-webkit-background-clip:text;background-clip:text;color:transparent;">02</div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-xl text-gray-900 mb-3">对「什么是好的信息工具」提出安静但坚定的答案</h3>
+                    <p class="text-gray-600 leading-relaxed">在 AI 浪潮中，大多数工具的叙事是"帮你更快地生产内容"。Gator 的叙事是"帮你更慢地保留灵感"。当 AI 能生产无限的内容时，真正稀缺的是来自你自己的思考碎片。无侧边栏、无通知、无账号、本地存储——不打扰，是工具的温柔。</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-gradient-to-br from-purple-50 via-white to-white rounded-3xl p-8 md:p-10 border border-purple-100 reveal">
+            <div class="flex items-start gap-6">
+                <div class="text-5xl font-bold flex-shrink-0" style="background:linear-gradient(135deg,#8B5CF6,#7C3AED);-webkit-background-clip:text;background-clip:text;color:transparent;">03</div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-xl text-gray-900 mb-3">技术选择上的克制本身就是一种创新</h3>
+                    <p class="text-gray-600 leading-relaxed">在一个追求"最新最热框架"的前端文化中，Gator 选择原生 JavaScript + 零构建 + 纯 CSS 变量。它不追逐潮流，但它能运行在任何浏览器、任何设备上，并且保持 100ms 内的首屏响应。先理解问题，再选择刚好够的技术——这是最前沿的思维方式。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="hero-grad text-white py-16 relative overflow-hidden">
+    <div class="absolute inset-0 dot-pattern opacity-15"></div>
+    <div class="max-w-4xl mx-auto px-6 text-center relative">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4 tracking-tight">感谢你看到这里。</h2>
+        <p class="text-white/80 text-lg mb-8 max-w-2xl mx-auto leading-relaxed">
+            Gator 的每一行代码、每一个设计决策、每一次 Bug 修复，<br>
+            都是"一个人 + Trae AI"协作模式的直接产物。
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+            <a href="gator-showcase.html" class="bg-white text-gray-900 px-7 py-4 rounded-full font-medium hover:bg-gray-50 transition inline-flex items-center gap-2 shadow-xl">
+                <span>打开产品交互演示</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+            </a>
+            <a href="gator-android/www/index.html" class="bg-white/10 backdrop-blur text-white px-7 py-4 rounded-full font-medium hover:bg-white/20 transition inline-flex items-center gap-2 border border-white/25">
+                <span>打开真实应用版本</span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="bg-gray-900 text-gray-400 py-10">
+    <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4 text-sm">
+        <div class="flex items-center gap-3">
+            <div class="logo-circle" style="width:32px;height:32px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"><path d="M20 12a8 8 0 1 1 -5.5 -7.65"/><circle cx="17.5" cy="6.5" r="2" fill="#F97316" stroke="#F97316"/></svg>
+            </div>
+            <span class="text-white font-semibold">Gator</span>
+            <span>· 信息效率工具箱</span>
+        </div>
+        <div class="text-xs">© Gator Project · Trae AI 创造力大赛参赛作品 · 一个人 + AI 的实验</div>
+    </div>
+</footer>
+
+<script>
+// Reveal on scroll
+var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+        if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+    });
+}, { threshold: 0.15 });
+document.querySelectorAll('.reveal').forEach(function(el) { io.observe(el); });
+
+// Theme cycle on logo click (fun)
+var themes = ['blue','purple','green','orange','pink']; var tIdx = 0;
+document.querySelectorAll('.logo-circle').forEach(function(el) {
+    el.style.cursor = 'pointer';
+    el.addEventListener('click', function() {
+        tIdx = (tIdx + 1) % themes.length;
+        window._setTheme(themes[tIdx]);
+    });
+});
+</script>
+
+</body>
+</html>

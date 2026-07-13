@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Gator Pinned 卡片排序验证</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif; }
+  .log-line { border-bottom: 1px dashed #e5e7eb; padding: 8px 0; }
+  .ok { color: #059669; font-weight: 600; }
+  .err { color: #dc2626; font-weight: 600; }
+  .info { color: #2563eb; font-weight: 500; }
+</style>
+</head>
+<body class="bg-slate-50 p-6">
+<div class="max-w-3xl mx-auto bg-white rounded-2xl shadow p-6">
+  <h1 class="text-xl font-bold mb-2">📌 Gator Pinned 卡片排序验证</h1>
+  <p class="text-sm text-slate-500 mb-4">目标：验证 <code>带图卡片 (21:10)</code> 和 <code>富文本排版范例 (23:18)</code> 均为 pinned，且 <code>23:18</code> 排在 <code>21:10</code> 前面</p>
+
+  <div class="flex gap-2 mb-4 flex-wrap">
+    <button id="btnSeed" class="px-4 py-2 rounded-xl bg-indigo-500 text-white text-sm">① 注入测试数据（2条 pinned）</button>
+    <button id="btnOpen" class="px-4 py-2 rounded-xl bg-blue-500 text-white text-sm">② 打开 Gator 主页面</button>
+    <button id="btnVerify" class="px-4 py-2 rounded-xl bg-emerald-500 text-white text-sm">③ 在主页面内手动查看验证</button>
+  </div>
+
+  <div class="bg-slate-900 text-slate-100 rounded-xl p-4 text-sm">
+    <p class="text-slate-400 mb-2 text-xs">自动化验证：请在 <strong>http://localhost:9090/index.html</strong> 页面按 F12 打开 DevTools，在 Console 粘贴以下代码并回车：</p>
+    <pre id="verificationCode" class="whitespace-pre-wrap break-all text-xs leading-relaxed overflow-x-auto" style="font-family: ui-monospace,SFMono-Regular,Menlo,monospace;"></pre>
+  </div>
+
+  <h2 class="mt-6 text-lg font-semibold">手动验证步骤</h2>
+  <ol class="mt-2 text-sm text-slate-700 space-y-2 list-decimal list-inside">
+    <li>点击「① 注入测试数据」→ 在浏览器 console 中运行注入脚本</li>
+    <li>访问或刷新 <code>http://localhost:9090/</code></li>
+    <li>观察首页卡片流：</li>
+    <ul class="list-disc list-inside ml-4 text-slate-600">
+      <li>确认有一张标题含「带图卡片」、时间 <code>21:10</code> 的卡片，右上角显示 pin 图标（图钉）</li>
+      <li>确认有一张标题含「富文本排版范例」、时间 <code>23:18</code> 的卡片，右上角显示 pin 图标</li>
+      <li>确认 <code>23:18</code> 的卡片在 <code>21:10</code> 的卡片<strong>前面</strong>（或在瀑布流中上/左位置更靠前）</li>
+    </ul>
+  </ol>
+
+  <h2 class="mt-6 text-lg font-semibold">预期结果</h2>
+  <div class="mt-2 bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-sm text-emerald-900">
+    <p>✅ 两张卡片均显示 pin 图标（位于右上角）</p>
+    <p>✅ 两张卡片位于首页列表顶部（其他 unpinned 卡片之后不会插入到它们前面）</p>
+    <p>✅ <code>富文本排版范例 (23:18)</code> 排在 <code>带图卡片 (21:10)</code> 之前（因为按 updatedAt 降序，23:18 更新）</p>
+  </div>
+</div>
+
+<script>
+  // ① 注入测试数据的脚本（可复制到 Gator 页面 console 运行）
+  const seedCode = `
+// === 在 http://localhost:9090/ 页面 Console 中运行 ===
+(function () {
+  const STORAGE_KEY = 'gator_items_v4';
+  const currentNbKey = 'gator_current_notebook';
+  const nbKey = 'gator_notebooks';
+  let currentNotebookId = localStorage.getItem(currentNbKey) || 'default';
+
+  // 确保笔记簿存在
+  try {
+    let nbs = JSON.parse(localStorage.getItem(nbKey) || 'null');
+    if (!nbs || !Array.isArray(nbs) || nbs.length === 0) {
+      nbs = [{ id: 'default', name: '默认笔记簿' }];
+      localStorage.setItem(nbKey, JSON.stringify(nbs));
+      localStorage.setItem(currentNbKey, 'default');
+      currentNotebookId = 'default';
+    }
+  } catch(e) {}
+
+  const itemKey = STORAGE_KEY + '_' + currentNotebookId;
+  let existing = [];
+  try { existing = JSON.parse(localStorage.getItem(itemKey) || '[]'); } catch(e) { existing = []; }
+
+  // 合成同一天的 ISO 时间：今天 21:10 和 23:18
+  const d = new Date();
+  const iso1 = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 21, 10, 0, 0).toISOString();
+  const iso2 = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 18, 0, 0).toISOString();
+
+  // 清除同名旧测试卡片
+  existing = existing.filter(i => !(i.title && (i.title.includes('带图卡片') || i.title.includes('富文本排版范例') || i.title.includes('测试'))));
+
+  const cardWithImage = {
+    id: 'test_pin_img_' + Date.now() + '_a',
+    title: '📷 带图卡片（测试，修改时间 21:10）',
+    content: '这是一条带图的测试卡片。\\n\\n![示例图](https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=400)\\n\\n- 有 Markdown 图片\\n- 用于测试 pinned 状态\\n- 修改时间：21:10',
+    type: '未分类',
+    createdAt: iso1,
+    updatedAt: iso1,
+    pinned: true
+  };
+  const cardRich = {
+    id: 'test_pin_rich_' + Date.now() + '_b',
+    title: '📝 富文本排版范例（测试，修改时间 23:18）',
+    content: '# 标题 H1\\n\\n**加粗** / *斜体* / ~~删除线~~\\n\\n1. 有序项 1\\n2. 有序项 2\\n\\n- 无序项 A\\n- 无序项 B\\n\\n> 引用：验证富文本在卡片中的预览效果\\n\\n\\`\\`\\`js\\nconsole.log("hello");\\n\\`\\`\\`\\n\\n修改时间：23:18',
+    type: '未分类',
+    createdAt: iso2,
+    updatedAt: iso2,
+    pinned: true
+  };
+
+  const newItems = [cardRich, cardWithImage, ...existing]; // 头部插入（这里顺序不影响，因为 renderFeed 会排序）
+  localStorage.setItem(itemKey, JSON.stringify(newItems));
+
+  console.log('%c✅ 已注入 2 条 pinned 测试数据', 'color:#059669;font-weight:bold;');
+  console.log('  - 富文本排版范例：updatedAt =', iso2, '(23:18)');
+  console.log('  - 带图卡片：updatedAt =', iso1, '(21:10)');
+  console.log('%c👉 请刷新页面 (F5)，然后在页面内观察/或粘贴验证代码', 'color:#2563eb;font-weight:bold;');
+
+  // 自动刷新
+  setTimeout(() => { window.location.reload(); }, 500);
+})();
+`;
+
+  // ③ 在主页面内验证的脚本
+  const verifyCode = `
+// === 在 http://localhost:9090/ 页面 Console 中运行（数据注入并刷新后） ===
+(function () {
+  console.log('%c🔍 开始验证 pinned 卡片排序...', 'color:#6366f1;font-weight:bold;');
+
+  // 1) 检查 localStorage 中的数据
+  const STORAGE_KEY = 'gator_items_v4';
+  const currentNbKey = 'gator_current_notebook';
+  const nb = localStorage.getItem(currentNbKey) || 'default';
+  let items = [];
+  try { items = JSON.parse(localStorage.getItem(STORAGE_KEY + '_' + nb) || '[]'); } catch(e) { items = []; }
+  const pinned = items.filter(i => i.pinned);
+  console.log('localStorage 中 pinned 条目：', pinned.length);
+  pinned.forEach(i => console.log('  -', i.title, '| updatedAt:', i.updatedAt, '| pinned:', i.pinned));
+
+  // 2) 等待渲染完成后，查找 DOM 中的目标卡片（包含 pin-icon）
+  const check = () => {
+    const allPinnedCards = Array.from(document.querySelectorAll('.pin-icon'))
+      .map(icon => icon.closest('.card-wrapper'))
+      .filter(Boolean);
+    console.log('DOM 中找到的 pinned 卡片（有 pin-icon）数量：', allPinnedCards.length);
+
+    // 定位目标卡片
+    const targets = [];
+    allPinnedCards.forEach(card => {
+      const title = (card.querySelector('h4, h3, .font-semibold') || {}).textContent || '';
+      const timeText = (card.querySelector('text\\[font-size\\="12px"\\], span') || {}).textContent || '';
+      // 提取卡片文本，寻找时间
+      const fullText = card.innerText || card.textContent || '';
+      targets.push({ card, title, fullText });
+    });
+
+    // 按卡片在 DOM 中的出现顺序
+    const domOrder = allPinnedCards.map((c, i) => {
+      const text = c.innerText || '';
+      const m = text.match(/(\\d{1,2}-\\d{1,2}\\s+)?(\\d{2}:\\d{2})/);
+      return { index: i, text, time: m ? m[2] : null, isImg: text.includes('带图卡片'), isRich: text.includes('富文本排版范例') };
+    });
+
+    console.log('pinned 卡片在 DOM 中的顺序（从上到下 / 从左到右 / 先插入的 DOM 排在前）：');
+    domOrder.forEach((o, i) => console.log(\`  [\${i+1}] time=\${o.time||'?'} isImg=\${o.isImg} isRich=\${o.isRich} -> '\${o.text.slice(0,40)}'\`));
+
+    const rich = domOrder.find(o => o.isRich);
+    const img = domOrder.find(o => o.isImg);
+
+    const richFirst = rich && img && rich.index < img.index;
+    const bothPinned = !!rich && !!img;
+
+    console.log('');
+    console.log('%c=== 验证结果 ===', 'color:#6366f1;font-weight:bold;');
+    console.log('  - 富文本排版范例 pinned?', rich ? '✅ YES (time=' + rich.time + ')' : '❌ NO');
+    console.log('  - 带图卡片 pinned?        ', img ? '✅ YES (time=' + img.time + ')' : '❌ NO');
+    console.log('  - 23:18 是否排在 21:10 前?', richFirst ? '✅ YES' : '❌ NO（或两者未全部找到）');
+
+    const allOk = bothPinned && richFirst;
+    console.log(allOk ? '%c🎉 全部验证通过！' : '%c⚠️ 存在问题，请检查上方日志', allOk ? 'color:#059669;font-weight:bold;font-size:14px;' : 'color:#dc2626;font-weight:bold;font-size:14px;');
+    return allOk;
+  };
+
+  // 等待渲染（renderFeed 用了 rAF）
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    setTimeout(check, 1500);
+  } else {
+    window.addEventListener('load', () => setTimeout(check, 1500));
+  }
+})();
+`;
+
+  document.getElementById('verificationCode').textContent = verifyCode;
+
+  document.getElementById('btnSeed').addEventListener('click', () => {
+    // 复制到剪贴板
+    navigator.clipboard.writeText(seedCode).then(() => {
+      alert('测试数据注入脚本已复制到剪贴板。\n\n请：\n1) 打开 http://localhost:9090/\n2) 按 F12 打开 DevTools\n3) 切到 Console 标签\n4) 粘贴并回车\n\n脚本会注入两张 pinned 卡片并自动刷新页面。');
+    });
+  });
+
+  document.getElementById('btnOpen').addEventListener('click', () => {
+    window.open('http://localhost:9090/', '_blank');
+  });
+
+  document.getElementById('btnVerify').addEventListener('click', () => {
+    navigator.clipboard.writeText(verifyCode).then(() => {
+      alert('验证脚本已复制到剪贴板。\n请在 Gator 主页面 (http://localhost:9090/) 的 Console 中粘贴并回车，查看验证结果。');
+    });
+  });
+</script>
+</body>
+</html>

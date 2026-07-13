@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body { margin: 0; padding-top: 250px; }
+  #diag { 
+    position: fixed; 
+    top: 0; left: 0; right: 0;
+    background: #ffeb3b; 
+    color: black; 
+    padding: 12px;
+    z-index: 99999;
+    font-size: 13px;
+    line-height: 1.4;
+    font-family: monospace;
+    border: 2px solid red;
+  }
+  iframe { border: none; display: block; }
+</style>
+</head>
+<body>
+<div id="diag">⏳ 启动诊断...</div>
+<iframe id="app" src="http://localhost:8766/index.html" style="width:100%;height:1500px;"></iframe>
+<script>
+const iframe = document.getElementById('app');
+const diag = document.getElementById('diag');
+let log = '';
+const w = (m) => { log += '<br>› ' + m; diag.innerHTML = log; };
+
+iframe.addEventListener('load', () => {
+  w('iframe loaded');
+  setTimeout(() => {
+    try {
+      const win = iframe.contentWindow;
+      const doc = iframe.contentDocument;
+      
+      w('layout=' + win.currentLayout + ', preview=' + win.imagePreviewMode + ', items=' + win.items.length);
+      
+      w('强制设置 masonry + 添加示例 + 渲染...');
+      win.currentLayout = 'masonry';
+      win.imagePreviewMode = true;
+      win.addDemoData();
+      win.renderFeed(false, true);
+      
+      setTimeout(() => {
+        const wraps = doc.querySelectorAll('.card-image-wrap');
+        w('card-image-wrap 数量: ' + wraps.length);
+        
+        if (wraps.length > 0) {
+          const wrap = wraps[0];
+          const slider = wrap.querySelector('.card-img-slider');
+          const img = wrap.querySelector('.card-img-slider img');
+          const wrapRect = wrap.getBoundingClientRect();
+          w('wrap: ' + Math.round(wrapRect.width) + 'x' + Math.round(wrapRect.height) + 'px');
+          w('wrap padding-bottom: ' + getComputedStyle(wrap).paddingBottom);
+          w('slider offset: ' + slider.offsetWidth + 'x' + slider.offsetHeight);
+          w('img offset: ' + img.offsetWidth + 'x' + img.offsetHeight);
+          w('img computed width: ' + getComputedStyle(img).width);
+          w('img computed flex: ' + getComputedStyle(img).flex);
+        } else {
+          w('❌ 没有 wraps。检查 feedContainer 内容:');
+          const fc = doc.getElementById('feedContainer');
+          w('feedContainer.innerHTML 前 200 字符: ' + (fc ? fc.innerHTML.substring(0, 200) : 'null'));
+        }
+      }, 1500);
+    } catch(e) { w('ERROR: ' + e.message + '<br>' + e.stack); }
+  }, 2500);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script>
+  // 进入页面后立即切换到 masonry + image preview 模式
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      // 模拟用户操作
+      const ev = new Event('input');
+    }, 100);
+  });
+</script>
+</head>
+<body>
+<iframe id="app" src="http://localhost:8766/index.html" style="width:430px;height:900px;border:none;"></iframe>
+<script>
+  const iframe = document.getElementById('app');
+  iframe.addEventListener('load', () => {
+    setTimeout(() => {
+      try {
+        const w = iframe.contentWindow;
+        // 切换到 masonry 模式
+        if (w.toggleLayout) w.toggleLayout();
+        // 开启带图预览
+        if (w.toggleImagePreview) w.toggleImagePreview();
+      } catch(e) { console.error(e); }
+    }, 2000);
+  });
+</script>
+</body>
+</html>

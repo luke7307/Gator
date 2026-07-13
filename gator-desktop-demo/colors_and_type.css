@@ -1,0 +1,102 @@
+/* Gator Desktop — Brand Design Tokens (Notion-inspired) */
+:root {
+  /* ── Primary ── */
+  --brand-primary: #3B82F6;
+  --brand-primary-dark: #2563EB;
+  --brand-primary-light: #DBEAFE;
+  --brand-primary-faint: #EFF6FF;
+
+  /* ── Complementary accent ── */
+  --brand-accent: #F59E0B;
+  --brand-accent-light: #FEF3C7;
+
+  /* ── Neutrals ── */
+  --neutral-50: #F8FAFC;
+  --neutral-100: #F1F5F9;
+  --neutral-200: #E2E8F0;
+  --neutral-300: #CBD5E1;
+  --neutral-400: #94A3B8;
+  --neutral-500: #64748B;
+  --neutral-600: #475569;
+  --neutral-700: #334155;
+  --neutral-800: #1E293B;
+  --neutral-900: #0F172A;
+
+  /* ── Surfaces ── */
+  --surface-bg: #FFFFFF;
+  --surface-sidebar: #F8FAFC;
+  --surface-hover: #F1F5F9;
+  --surface-active: #E2E8F0;
+  --surface-card: #FFFFFF;
+  --surface-modal: #FFFFFF;
+  --surface-overlay: rgba(15, 23, 42, 0.5);
+
+  /* ── Border ── */
+  --border-default: #E2E8F0;
+  --border-light: #F1F5F9;
+  --border-focus: #3B82F6;
+
+  /* ── Text ── */
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-tertiary: #94A3B8;
+  --text-inverse: #FFFFFF;
+  --text-link: #3B82F6;
+
+  /* ── State colors ── */
+  --state-success: #10B981;
+  --state-warning: #F59E0B;
+  --state-error: #EF4444;
+  --state-info: #3B82F6;
+
+  /* ── Radius ── */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* ── Shadow ── */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.08);
+  --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.12);
+
+  /* ── Typography ── */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-lg: 16px;
+  --text-xl: 18px;
+  --text-2xl: 20px;
+  --text-3xl: 24px;
+  --text-4xl: 30px;
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.02em;
+
+  /* ── Sidebar ── */
+  --sidebar-width: 260px;
+  --sidebar-collapsed-width: 0px;
+}
+
+/* ── Typography Scale Classes ── */
+.font-display { font-family: var(--font-sans); font-weight: 700; letter-spacing: var(--tracking-tight); }
+.font-body { font-family: var(--font-sans); font-weight: 400; letter-spacing: var(--tracking-normal); }
+.font-mono { font-family: var(--font-mono); }
+
+/* ── Surface Classes ── */
+.surface-sidebar { background: var(--surface-sidebar); border-right: 1px solid var(--border-default); }
+.surface-card { background: var(--surface-card); border: 1px solid var(--border-default); border-radius: var(--radius-lg); }
+.surface-elevated { background: var(--surface-modal); box-shadow: var(--shadow-lg); border-radius: var(--radius-lg); }
+
+/* ── Transition ── */
+.transition-default { transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1); }

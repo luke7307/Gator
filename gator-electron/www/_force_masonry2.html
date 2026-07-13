@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script>
+// 在 iframe 加载前预设 localStorage
+</script>
+</head>
+<body style="margin:0;">
+<script>
+  // 先用顶级窗口的 localStorage 写入（因为iframe会继承）
+  try {
+    localStorage.setItem('gator_layout', 'masonry');
+  } catch(e) {}
+</script>
+<iframe id="app" src="http://localhost:8766/index.html" style="width:430px;height:900px;border:none;display:block;"></iframe>
+</body>
+</html>

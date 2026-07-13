@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>导出测试 - iframe 沙箱版</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #eee; padding: 20px; }
+.controls { margin-bottom: 10px; }
+button { padding: 8px 16px; font-size: 14px; cursor: pointer; margin-right: 10px; }
+.result-box { margin-top: 20px; }
+.result-box img { border: 1px solid #ccc; max-width: 375px; }
+</style>
+</head>
+<body>
+<div class="controls">
+<button onclick="testIframeExport()">测试 iframe 导出（和实际导出逻辑一致）</button>
+<button onclick="testDirectExport()">对比：直接渲染导出</button>
+</div>
+<div class="result-box" id="resultBox"><p>点击按钮开始测试</p></div>
+
+<script>
+function toRoman(num) {
+    var map = [['M',1000],['CM',900],['D',500],['CD',400],['C',100],['XC',90],['L',50],['XL',40],['X',10],['IX',9],['V',5],['IV',4],['I',1]];
+    var result = '';
+    for (var i = 0; i < map.length; i++) {
+        while (num >= map[i][1]) { result += map[i][0]; num -= map[i][1]; }
+    }
+    return result;
+}
+function applyInlineRich(text) {
+    return text.replace(/\*\*(.*?)\*\*/g, '<strong style="font-weight:600;">$1</strong>').replace(/\*([^*]+)\*/g, '<em style="font-style:italic;">$1</em>');
+}
+function escapeHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function parseNestedList(lines, startIdx, tag) {
+    const result = [];
+    let i = startIdx;
+    const baseIndent = lines[i].search(/\S/);
+    while (i < lines.length) {
+        const line = lines[i];
+        const trimmed = line.trim();
+        if (!trimmed) { i++; continue; }
+        const curIndent = line.search(/\S/);
+        if (curIndent < baseIndent) break;
+        if (curIndent === baseIndent) {
+            let itemText = '';
+            if (tag === 'ul') {
+                if (!/^- /.test(trimmed)) break;
+                itemText = trimmed.replace(/^- /, '');
+            } else {
+                if (!/^\d+\. /.test(trimmed) && !/^[a-zA-Z]\. /.test(trimmed) && !/^[ivxIVX]+\. /.test(trimmed)) break;
+                itemText = trimmed.replace(/^[-0-9a-zA-Z.]+\. /, '');
+            }
+            let itemHtml = itemText;
+            i++;
+            if (i < lines.length && lines[i].search(/\S/) > baseIndent) {
+                const nested = parseNestedList(lines, i, tag === 'ul' ? 'ul' : 'ol');
+                itemHtml += nested.html;
+                i = nested.nextIdx;
+            }
+            result.push('<li>' + itemHtml + '</li>');
+        } else {
+            break;
+        }
+    }
+    return { html: '<' + tag + '>' + result.join('') + '</' + tag + '>', nextIdx: i };
+}
+function applyNestListStyles(html) { return html; }
+
+function markdownToHtml(md) {
+    if (!md || !md.trim()) return '';
+    const lines = md.split('\n');
+    let result = [];
+    let i = 0;
+    while (i < lines.length) {
+        const line = lines[i];
+        const trimmed = line.trim();
+        if (!trimmed) { i++; continue; }
+        if (/^#{1,5} /.test(trimmed)) {
+            const level = trimmed.match(/^(#{1,5}) /)[1].length;
+            const text = trimmed.replace(/^#{1,5} /, '');
+            const escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            const richText = escaped.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>');
+            result.push('<h' + level + '>' + richText + '</h' + level + '>');
+            i++; continue;
+        }
+        if (/^> /.test(trimmed)) {
+            const text = trimmed.replace(/^> /, '');
+            const escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            result.push('<blockquote>' + escaped + '</blockquote>');
+            i++; continue;
+        }
+        if (/^- \[ \] /.test(trimmed) || /^- \[x\] /.test(trimmed)) {
+            const checked = /^- \[x\]/i.test(trimmed);
+            const text = trimmed.replace(/^- \[.\] /, '');
+            const escaped = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            const style = checked ? 'display:flex;align-items:center;gap:4px;margin:4px 0;opacity:0.5;text-decoration:line-through;text-decoration-color:var(--theme-primary, #3B82F6)' : 'display:flex;align-items:center;gap:4px;margin:4px 0';
+            const accentStyle = checked ? ' style="margin:0;flex-shrink:0;accent-color:var(--theme-primary, #3B82F6)"' : ' style="margin:0;flex-shrink:0"';
+            result.push('<div data-task="true" style="' + style + '" contenteditable="false"><input type="checkbox"' + (checked ? ' checked' : '') + accentStyle + '><span style="flex:1;min-width:0" contenteditable="false">' + escaped + '</span></div>');
+            i++; continue;
+        }
+        if (/^- /.test(trimmed)) {
+            const listResult = parseNestedList(lines, i, 'ul');
+            listResult.html = applyNestListStyles(listResult.html);
+            result.push(listResult.html);
+            i = listResult.nextIdx;
+            continue;
+        }
+        if (/^\d+\. /.test(trimmed) || /^[a-zA-Z]\. /.test(trimmed) || /^[ivxIVX]+\. /.test(trimmed)) {
+            const listResult = parseNestedList(lines, i, 'ol');
+            listResult.html = applyNestListStyles(listResult.html);
+            result.push(listResult.html);
+            i = listResult.nextIdx;
+            continue;
+        }
+        if (/^---$/.test(trimmed)) {
+            result.push('<hr>');
+            i++; continue;
+        }
+        let paraLines = [];
+        while (i < lines.length && lines[i].trim() && !/^#{1,5} /.test(lines[i].trim()) && !/^> /.test(lines[i].trim()) && !/^- \[.\] /.test(lines[i].trim()) && !/^- /.test(lines[i].trim()) && !/^\d+\. /.test(lines[i].trim()) && !/^---$/.test(lines[i].trim()) && !/^!\[/.test(lines[i].trim())) {
+            const escaped = lines[i].replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            const richText = escaped.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/`([^`]+)`/g,'<code style="background:#f3f4f6;color:#ef4444;padding:2px 6px;border-radius:4px;font-size:13px">$1</code>');
+            paraLines.push(richText);
+            i++;
+        }
+        if (paraLines.length > 0) {
+            result.push('<p>' + paraLines.join('<br>') + '</p>');
+        }
+    }
+    return result.join('');
+}
+
+function styleExportContent(html) {
+    if (!html) return '';
+    var tmp = document.createElement('div');
+    tmp.innerHTML = html;
+
+    var lists = tmp.querySelectorAll('ul, ol');
+    var arr = [];
+    for (var i = 0; i < lists.length; i++) arr.push(lists[i]);
+    arr.sort(function(a, b) {
+        var da = 0, db = 0;
+        var p = a; while (p = p.parentElement) { if (p.tagName === 'UL' || p.tagName === 'OL') da++; }
+        p = b; while (p = p.parentElement) { if (p.tagName === 'UL' || p.tagName === 'OL') db++; }
+        return db - da;
+    });
+
+    arr.forEach(function(list) {
+        var tag = list.tagName.toLowerCase();
+        var styleAttr = list.getAttribute('style') || '';
+        var sm = styleAttr.match(/list-style-type:\s*([^;]+)/);
+        var type = sm ? sm[1].trim() : (tag === 'ul' ? 'disc' : 'decimal');
+
+        var counter = 0;
+        var wrapper = document.createElement('div');
+        wrapper.style.marginTop = '8px';
+        wrapper.style.marginBottom = '8px';
+
+        var children = list.children;
+        for (var j = 0; j < children.length; j++) {
+            var li = children[j];
+            if (li.tagName.toLowerCase() !== 'li') continue;
+            counter++;
+            var marker = '';
+            if (type === 'disc') marker = '•';
+            else if (type === 'circle') marker = '○';
+            else if (type === 'square') marker = '▪';
+            else if (type === 'decimal') marker = counter + '.';
+            else if (type === 'lower-alpha') marker = String.fromCharCode(96 + counter) + '.';
+            else if (type === 'lower-roman') marker = toRoman(counter).toLowerCase() + '.';
+            else marker = '•';
+
+            var itemDiv = document.createElement('div');
+            itemDiv.style.cssText = 'position:relative;padding-left:24px;margin:4px 0;line-height:1.6;font-size:14px;color:#374151;';
+
+            var markerSpan = document.createElement('span');
+            markerSpan.style.cssText = 'position:absolute;left:0;top:0;width:24px;text-align:left;';
+            markerSpan.textContent = marker;
+
+            var contentDiv = document.createElement('span');
+            while (li.firstChild) {
+                contentDiv.appendChild(li.firstChild);
+            }
+
+            itemDiv.appendChild(markerSpan);
+            itemDiv.appendChild(contentDiv);
+            wrapper.appendChild(itemDiv);
+        }
+
+        list.parentNode.replaceChild(wrapper, list);
+    });
+
+    var tasks = tmp.querySelectorAll('div[data-task="true"]');
+    for (var i = 0; i < tasks.length; i++) {
+        var task = tasks[i];
+        var isChecked = task.style.opacity === '0.5';
+        var checkbox = task.querySelector('input[type="checkbox"]');
+        var textSpan = task.querySelector('span');
+        if (!checkbox || !textSpan) continue;
+
+        var newTask = document.createElement('div');
+        newTask.style.cssText = 'position:relative;padding-left:24px;margin:4px 0;line-height:1.6;font-size:14px;color:#374151;' + (isChecked ? 'opacity:0.5;text-decoration:line-through;text-decoration-color:#3B82F6;' : '');
+
+        checkbox.style.cssText = 'position:absolute;left:0;top:3px;margin:0;' + (isChecked ? 'accent-color:#3B82F6;' : '');
+
+        var rawText = textSpan.textContent || textSpan.innerText || '';
+        newTask.innerHTML = checkbox.outerHTML + applyInlineRich(rawText.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'));
+
+        task.parentNode.replaceChild(newTask, task);
+    }
+
+    var heads = tmp.querySelectorAll('h1,h2,h3,h4,h5');
+    for (var i = 0; i < heads.length; i++) {
+        heads[i].style.margin = '16px 0 8px 0';
+        heads[i].style.fontWeight = '600';
+    }
+
+    var bqs = tmp.querySelectorAll('blockquote');
+    for (var i = 0; i < bqs.length; i++) {
+        bqs[i].style.cssText = 'margin:12px 0;padding:12px 16px;background:#F9FAFB;border-left:3px solid #E5E7EB;color:#6B7280;font-style:italic;';
+    }
+
+    var ps = tmp.querySelectorAll('p');
+    for (var i = 0; i < ps.length; i++) {
+        ps[i].style.margin = '8px 0';
+        ps[i].style.lineHeight = '1.7';
+    }
+
+    var imgs = tmp.querySelectorAll('img');
+    for (var i = 0; i < imgs.length; i++) {
+        imgs[i].style.cssText = 'max-width:100%;height:auto;border-radius:8px;margin:8px 0;display:block;';
+    }
+
+    return tmp.innerHTML;
+}
+
+function buildLongImageHtml(item) {
+    const match = item.title.match(/^(\S+)\s+(.*)$/);
+    const emoji = match ? match[1] : '';
+    const title = match ? match[2] || '' : item.title || '';
+    const contentHtml = styleExportContent(markdownToHtml(item.content || ''));
+    const timeStr = item.timeStr;
+    const typeStr = item.type || '灵感';
+    
+    return `<div class="long-export-card" style="background:#fff;border-radius:20px;padding:24px 20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+            <div style="margin-bottom:14px;">
+                <div style="display:flex;align-items:center;">
+                    <span style="font-size:16px;margin-right:8px;line-height:1;">${emoji}</span>
+                    <span style="font-size:16px;font-weight:bold;color:#000;line-height:1.3;">${escapeHtml(title)}</span>
+                </div>
+                <div style="text-align:right;font-size:12px;color:#9CA3AF;margin-top:6px;">${typeStr} · ${timeStr}</div>
+            </div>
+            <div style="height:1px;background:#F3F4F6;margin:14px 0;"></div>
+            <div style="font-size:15px;color:#374151;line-height:1.7;">${contentHtml}</div>
+            <div style="margin-top:24px;padding-top:16px;border-top:1px solid #F3F4F6;">
+                <div style="display:flex;align-items:center;justify-content:space-between;">
+                    <div style="display:flex;align-items:center;height:22px;">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjIiIGhlaWdodD0iMjIiIHZpZXdCb3g9IjAgMCAyMiAyMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMjIiIGhlaWdodD0iMjIiIHJ4PSI1IiBmaWxsPSIjM0I4MkY2Ii8+PHRleHQgeD0iMTEiIHk9IjE2IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtd2VpZ2h0PSJib2xkIiBmaWxsPSJ3aGl0ZSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+RzwvdGV4dD48L3N2Zz4=" style="width:22px;height:22px;border-radius:5px;display:block;vertical-align:middle;" alt="">
+                        <span style="font-size:13px;color:#6B7280;font-weight:600;line-height:22px;margin-left:6px;vertical-align:middle;display:inline-block;">Gator 灵犀</span>
+                    </div>
+                    <span style="font-size:12px;color:#9CA3AF;line-height:22px;vertical-align:middle;display:inline-block;">让灵感有迹可循</span>
+                </div>
+            </div>
+        </div>`;
+}
+
+const testItem = {
+    title: '📝 测试列表对齐',
+    type: '笔记',
+    timeStr: '2025-07-09',
+    content: `# 标题一
+
+这是一段普通文字，用来测试段落和列表的对齐。
+
+## 无序列表
+
+- 第一个项目，无序列表，看看文字是否和任务列表对齐
+- 第二个项目，稍微长一点的内容，看看换行之后的缩进是否正确，第二行应该和第一行的开头对齐
+- 第三个项目
+
+### 有序列表
+
+1. 有序列表第一项
+2. 有序列表第二项，也是比较长的内容，用来测试换行后的对齐效果
+3. 第三项
+
+### 任务列表
+
+- [ ] 未完成任务，加粗的**重要内容**
+- [x] 已完成任务，*斜体文字*
+- [ ] 任务列表第三项，也是比较长的内容，用来测试换行后是否对齐
+
+> 这是一段引用文字，用来测试引用块的样式
+
+普通段落结束。`
+};
+
+function testIframeExport() {
+    const box = document.getElementById('resultBox');
+    box.innerHTML = '<p>iframe 导出中...</p>';
+    
+    const cardHtml = buildLongImageHtml(testItem);
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:375px;height:0;border:none;z-index:-1;';
+    iframe.srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"><\/script><style>body{margin:0;background:#F9FAFB;padding:20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;}</style></head><body>${cardHtml}<\/body><\/html>`;
+
+    iframe.onload = () => {
+        const win = iframe.contentWindow;
+        const target = win.document.querySelector('.long-export-card');
+        win.html2canvas(target, {
+            backgroundColor: '#F9FAFB',
+            scale: 2,
+            useCORS: true,
+            allowTaint: true,
+            logging: false
+        }).then(canvas => {
+            const dataUrl = canvas.toDataURL('image/png');
+            document.body.removeChild(iframe);
+            
+            box.innerHTML = '';
+            const h3 = document.createElement('h3');
+            h3.textContent = 'iframe 沙箱导出结果（和实际导出逻辑一致）';
+            box.appendChild(h3);
+            
+            const img = document.createElement('img');
+            img.src = dataUrl;
+            img.style.width = '375px';
+            img.style.border = '2px solid #3B82F6';
+            box.appendChild(img);
+            
+            const link = document.createElement('a');
+            link.download = 'iframe-export-test.png';
+            link.href = dataUrl;
+            link.textContent = '下载此图片';
+            link.style.display = 'block';
+            link.style.marginTop = '10px';
+            box.appendChild(link);
+        }).catch(err => {
+            box.innerHTML = '<p style="color:red">导出失败: ' + err.message + '</p>';
+            document.body.removeChild(iframe);
+        });
+    };
+    document.body.appendChild(iframe);
+}
+
+function testDirectExport() {
+    const box = document.getElementById('resultBox');
+    box.innerHTML = '<p>直接渲染导出中...</p>';
+    
+    const div = document.createElement('div');
+    div.style.cssText = 'position:fixed;left:-9999px;top:0;width:375px;background:#F9FAFB;padding:20px;z-index:-1;';
+    div.innerHTML = buildLongImageHtml(testItem);
+    document.body.appendChild(div);
+    
+    html2canvas(div.querySelector('.long-export-card'), {
+        backgroundColor: '#F9FAFB',
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false
+    }).then(canvas => {
+        const dataUrl = canvas.toDataURL('image/png');
+        document.body.removeChild(div);
+        
+        box.innerHTML = '';
+        const h3 = document.createElement('h3');
+        h3.textContent = '直接渲染导出结果（受本页样式影响）';
+        box.appendChild(h3);
+        
+        const img = document.createElement('img');
+        img.src = dataUrl;
+        img.style.width = '375px';
+        img.style.border = '2px solid #ef4444';
+        box.appendChild(img);
+        
+        const link = document.createElement('a');
+        link.download = 'direct-export-test.png';
+        link.href = dataUrl;
+        link.textContent = '下载此图片';
+        link.style.display = 'block';
+        link.style.marginTop = '10px';
+        box.appendChild(link);
+    }).catch(err => {
+        box.innerHTML = '<p style="color:red">导出失败: ' + err.message + '</p>';
+        document.body.removeChild(div);
+    });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gator · 灵感捕获与整理器</title>
+<style>
+/* ===== CSS Variables ===== */
+:root {
+  --bg: #f4f7fb;
+  --bg2: #ffffff;
+  --ink: #0f1b2e;
+  --muted: #5a6b82;
+  --rule: #d0d8e4;
+  --accent: #2563eb;
+  --accent2: #1e40af;
+  --orange: #f97316;
+  --accent-soft: #e0f2fe;
+  --orange-soft: #ffedd5;
+  --green: #10b981;
+  --green-soft: #d1fae5;
+  --pink: #ec4899;
+  --pink-soft: #fce7f3;
+  --shadow: 0 4px 24px rgba(15, 27, 46, 0.08);
+  --shadow-hover: 0 8px 32px rgba(15, 27, 46, 0.14);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 20%, rgba(37,99,235,0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(249,115,22,0.04) 0%, transparent 60%),
+    linear-gradient(180deg, #f4f7fb 0%, #eef2f8 100%);
+  pointer-events: none;
+  z-index: -2;
+}
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(37,99,235,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(37,99,235,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
+.section { padding: 96px 0; position: relative; }
+@media (max-width: 768px) { .section { padding: 64px 0; } }
+
+/* ===== Animations ===== */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+.reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ===== Navigation ===== */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  padding: 16px 0;
+  transition: background 0.3s, backdrop-filter 0.3s, box-shadow 0.3s;
+}
+.nav.scrolled {
+  background: rgba(244, 247, 251, 0.85);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 1px 0 rgba(15,27,46,0.06);
+}
+.nav-inner { max-width: 1180px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; }
+.nav-logo { font-size: 1.25rem; font-weight: 800; color: var(--ink); text-decoration: none; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
+.nav-logo-dot { width: 10px; height: 10px; background: linear-gradient(135deg, var(--accent), var(--orange)); border-radius: 3px; }
+.nav-links { display: flex; align-items: center; gap: 28px; }
+.nav-links a { font-size: 0.88rem; color: var(--muted); text-decoration: none; transition: color 0.2s; font-weight: 500; }
+.nav-links a:hover { color: var(--accent); }
+.nav-cta {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #fff; padding: 8px 18px; border-radius: 8px;
+  font-size: 0.85rem; font-weight: 600; text-decoration: none;
+  transition: all 0.25s; box-shadow: 0 2px 8px rgba(37,99,235,0.25);
+}
+.nav-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(37,99,235,0.35); }
+@media (max-width: 768px) { .nav-links { gap: 16px; } .nav-links a:not(.nav-cta) { display: none; } }
+
+/* ===== HERO ===== */
+.hero { min-height: 100vh; display: flex; align-items: center; padding: 120px 0 80px; position: relative; overflow: hidden; }
+
+.hero-card {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+  border-radius: 28px;
+  padding: 56px 64px;
+  box-shadow: 0 20px 60px rgba(37, 99, 235, 0.25), inset 0 1px 0 rgba(255,255,255,0.1);
+  position: relative;
+  overflow: hidden;
+  animation: fadeInUp 0.8s ease-out;
+}
+.hero-card::before {
+  content: ''; position: absolute; top: -50%; right: -30%;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(249,115,22,0.2) 0%, transparent 60%);
+  pointer-events: none;
+}
+.hero-card::after {
+  content: ''; position: absolute; bottom: -30%; left: -10%;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.15); color: #fff;
+  padding: 8px 18px; border-radius: 24px;
+  font-size: 0.85rem; font-weight: 600;
+  margin-bottom: 28px;
+  border: 1px solid rgba(255,255,255,0.2);
+  backdrop-filter: blur(10px);
+  animation: fadeInUp 0.6s 0.1s ease both;
+}
+.hero-badge-dot { width: 8px; height: 8px; background: var(--orange); border-radius: 50%; box-shadow: 0 0 8px var(--orange); }
+
+.hero-title {
+  font-size: 3.8rem; font-weight: 800; line-height: 1.1;
+  color: #fff; margin-bottom: 24px; letter-spacing: -0.03em;
+  animation: fadeInUp 0.6s 0.2s ease both;
+}
+.hero-title .highlight { color: var(--orange); text-shadow: 0 2px 16px rgba(249,115,22,0.4); }
+
+.hero-subtitle {
+  font-size: 1.15rem; color: rgba(255,255,255,0.85);
+  line-height: 1.8; max-width: 620px; margin-bottom: 40px;
+  animation: fadeInUp 0.6s 0.3s ease both;
+}
+.hero-subtitle em { font-style: normal; color: #fff; font-weight: 600; }
+
+.hero-btns { display: flex; gap: 16px; flex-wrap: wrap; animation: fadeInUp 0.6s 0.4s ease both; }
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px; padding: 14px 32px;
+  border-radius: 12px; font-size: 1rem; font-weight: 600;
+  text-decoration: none; transition: all 0.25s ease;
+  cursor: pointer; border: none;
+}
+.btn-primary { background: #fff; color: var(--accent); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(0,0,0,0.25); background: var(--orange); color: #fff; }
+.btn-secondary { background: rgba(255,255,255,0.12); color: #fff; border: 1.5px solid rgba(255,255,255,0.3); backdrop-filter: blur(10px); }
+.btn-secondary:hover { background: rgba(255,255,255,0.2); transform: translateY(-3px); }
+
+.hero-stats { display: flex; gap: 40px; margin-top: 40px; padding-top: 40px; border-top: 1px solid rgba(255,255,255,0.2); animation: fadeInUp 0.6s 0.5s ease both; }
+.hero-stat { color: #fff; }
+.hero-stat-num { font-size: 1.8rem; font-weight: 800; color: var(--orange); line-height: 1; margin-bottom: 4px; }
+.hero-stat-label { font-size: 0.85rem; color: rgba(255,255,255,0.7); }
+
+@media (max-width: 768px) {
+  .hero-card { padding: 40px 28px; border-radius: 20px; }
+  .hero-title { font-size: 2.4rem; }
+  .hero-stats { flex-wrap: wrap; gap: 24px; }
+}
+
+/* ===== App Preview Window ===== */
+.app-preview {
+  margin-top: 48px;
+  animation: fadeInUp 0.8s 0.5s ease both;
+}
+.app-window {
+  background: var(--bg2); border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(15,27,46,0.18);
+  overflow: hidden; border: 1px solid var(--rule);
+}
+.app-header {
+  background: #fafbfc; padding: 12px 20px;
+  border-bottom: 1px solid var(--rule);
+  display: flex; align-items: center; gap: 12px;
+}
+.app-dots { display: flex; gap: 6px; }
+.app-dot { width: 12px; height: 12px; border-radius: 50%; }
+.app-dot.red { background: #ef4444; }
+.app-dot.yellow { background: #f59e0b; }
+.app-dot.green { background: #22c55e; }
+.app-title { font-size: 0.82rem; color: var(--muted); font-weight: 500; margin-left: 8px; }
+.app-body {
+  display: grid; grid-template-columns: 200px 1fr;
+  min-height: 280px;
+}
+.app-sidebar {
+  background: #fafbfc; padding: 20px 16px;
+  border-right: 1px solid var(--rule);
+}
+.app-item {
+  padding: 8px 12px; border-radius: 6px;
+  margin-bottom: 6px;
+  display: flex; align-items: center; gap: 10px;
+  font-size: 0.82rem; color: var(--muted);
+}
+.app-item.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.app-emoji { font-size: 1rem; width: 20px; text-align: center; }
+
+.app-content { padding: 28px 36px; }
+.content-tag {
+  display: inline-block; background: var(--orange-soft);
+  color: var(--orange); padding: 4px 12px; border-radius: 6px;
+  font-size: 0.78rem; font-weight: 600; margin-bottom: 14px;
+}
+.content-title {
+  font-size: 1.35rem; font-weight: 700; color: var(--ink);
+  margin-bottom: 12px; line-height: 1.35;
+}
+.content-meta {
+  display: flex; gap: 16px; font-size: 0.8rem; color: var(--muted);
+  margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px dashed var(--rule);
+  flex-wrap: wrap;
+}
+.content-text {
+  font-size: 0.9rem; color: var(--ink); line-height: 1.75;
+}
+.content-text p { margin-bottom: 10px; }
+.content-text .hl {
+  background: linear-gradient(180deg, transparent 60%, rgba(249,115,22,0.25) 60%);
+  font-weight: 600;
+}
+
+.app-image-row {
+  margin-top: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+}
+.image-thumb {
+  background: var(--accent-soft); border-radius: 12px;
+  padding: 20px; text-align: center; font-size: 0.8rem;
+  color: var(--accent); font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  min-height: 80px;
+}
+.image-thumb.orange { background: var(--orange-soft); color: var(--orange); }
+.image-thumb.green { background: var(--green-soft); color: var(--green); }
+
+@media (max-width: 768px) {
+  .app-body { grid-template-columns: 1fr; }
+  .app-sidebar { display: none; }
+}
+
+/* ===== Section Headers ===== */
+.section-header { text-align: center; margin-bottom: 56px; }
+.section-label {
+  display: inline-block; background: var(--accent-soft);
+  color: var(--accent); padding: 6px 14px; border-radius: 20px;
+  font-size: 0.82rem; font-weight: 600; margin-bottom: 16px;
+}
+.section-header h2 {
+  font-size: 2.2rem; font-weight: 800; margin-bottom: 14px;
+  letter-spacing: -0.02em; line-height: 1.25;
+}
+.section-header h2 .accent { color: var(--orange); }
+.section-header p { font-size: 1.02rem; color: var(--muted); max-width: 580px; margin: 0 auto; line-height: 1.7; }
+
+/* ===== Principles (3 cards) ===== */
+.principles-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+  max-width: 1000px; margin: 0 auto;
+}
+@media (max-width: 900px) { .principles-grid { grid-template-columns: 1fr; } }
+
+.principle-card {
+  background: var(--bg2); border-radius: 20px;
+  padding: 36px 32px; box-shadow: var(--shadow);
+  transition: transform 0.3s, box-shadow 0.3s;
+  position: relative; overflow: hidden;
+}
+.principle-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 4px; background: linear-gradient(90deg, var(--accent), var(--orange));
+  border-radius: 20px 20px 0 0; opacity: 0; transition: opacity 0.3s;
+}
+.principle-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-hover); }
+.principle-card:hover::before { opacity: 1; }
+
+.principle-icon {
+  width: 56px; height: 56px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; margin-bottom: 20px;
+}
+.principle-icon.blue { background: linear-gradient(135deg, var(--accent-soft), #dbeafe); }
+.principle-icon.orange { background: linear-gradient(135deg, var(--orange-soft), #fed7aa); }
+.principle-icon.green { background: linear-gradient(135deg, var(--green-soft), #a7f3d0); }
+.principle-card h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 10px; color: var(--ink); }
+.principle-card p { font-size: 0.93rem; color: var(--muted); line-height: 1.7; }
+
+/* ===== Pain Points ===== */
+.pain-section { background: linear-gradient(180deg, transparent, rgba(249,115,22,0.03), transparent); }
+.pain-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+@media (max-width: 768px) { .pain-grid { grid-template-columns: 1fr; } }
+
+.pain-card {
+  background: var(--bg2); border: 1px solid var(--rule);
+  border-radius: 20px; padding: 32px 28px; box-shadow: var(--shadow);
+  transition: transform 0.3s, box-shadow 0.3s; position: relative; overflow: hidden;
+}
+.pain-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: rgba(249,115,22,0.3); }
+.pain-card::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 40px; height: 40px; background: var(--orange-soft);
+  border-radius: 0 0 40px 0; opacity: 0.5;
+}
+.pain-num {
+  position: relative; font-size: 2rem; font-weight: 800;
+  color: var(--orange); line-height: 1; margin-bottom: 16px; opacity: 0.7;
+}
+.pain-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 10px; color: var(--ink); }
+.pain-card p { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+
+/* ===== Features ===== */
+.features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+@media (max-width: 900px) { .features-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px) { .features-grid { grid-template-columns: 1fr; } }
+
+.feature-card {
+  background: var(--bg2); border: 1px solid var(--rule);
+  border-radius: 16px; padding: 28px 24px; box-shadow: var(--shadow);
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+  position: relative; overflow: hidden;
+}
+.feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-hover); border-color: rgba(37,99,235,0.25); }
+.feature-badge {
+  display: inline-block; background: var(--accent-soft); color: var(--accent);
+  padding: 4px 10px; border-radius: 8px; font-size: 0.72rem;
+  font-weight: 600; margin-bottom: 14px; letter-spacing: 0.02em;
+}
+.feature-icon {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent-soft), #dbeafe);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem; margin-bottom: 14px;
+}
+.feature-card h4 { font-size: 1.05rem; font-weight: 700; margin-bottom: 8px; color: var(--ink); }
+.feature-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.7; }
+
+/* ===== Progress Section ===== */
+.progress-section { background: linear-gradient(180deg, transparent, rgba(37,99,235,0.03), transparent); }
+.progress-wrap {
+  max-width: 900px; margin: 0 auto;
+  background: var(--bg2); border-radius: 24px;
+  padding: 48px; box-shadow: var(--shadow);
+  border: 1px solid var(--rule);
+}
+.progress-intro {
+  text-align: center; margin-bottom: 40px;
+  padding-bottom: 32px; border-bottom: 1px dashed var(--rule);
+}
+.progress-intro h3 { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; color: var(--ink); }
+.progress-intro p { color: var(--muted); font-size: 0.95rem; }
+
+.progress-timeline { position: relative; padding-left: 48px; }
+.progress-timeline::before {
+  content: ''; position: absolute; left: 18px; top: 8px; bottom: 8px;
+  width: 3px; background: linear-gradient(180deg, var(--accent), var(--orange));
+  border-radius: 2px;
+}
+.timeline-item {
+  position: relative; margin-bottom: 28px; padding-bottom: 28px;
+  border-bottom: 1px dashed var(--rule);
+}
+.timeline-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+.timeline-dot {
+  position: absolute; left: -42px; top: 0;
+  width: 32px; height: 32px; border-radius: 50%;
+  background: var(--bg2); border: 3px solid var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.78rem; font-weight: 700; color: var(--accent);
+}
+.timeline-dot.done { background: var(--accent); color: #fff; }
+.timeline-dot.ongoing {
+  background: var(--orange); border-color: var(--orange); color: #fff;
+  animation: float 2s ease-in-out infinite;
+}
+.timeline-content h4 {
+  font-size: 1.02rem; font-weight: 700;
+  margin-bottom: 6px; color: var(--ink);
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.timeline-status {
+  font-size: 0.72rem; padding: 3px 10px;
+  border-radius: 6px; font-weight: 600;
+}
+.timeline-status.done { background: var(--green-soft); color: var(--green); }
+.timeline-status.ongoing { background: var(--orange-soft); color: var(--orange); }
+.timeline-content p { font-size: 0.9rem; color: var(--muted); line-height: 1.75; }
+
+@media (max-width: 768px) { .progress-wrap { padding: 32px 24px; } }
+
+/* ===== Roadmap ===== */
+.roadmap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+@media (max-width: 900px) { .roadmap-grid { grid-template-columns: 1fr; } }
+
+.roadmap-card {
+  background: var(--bg2); border-radius: 20px;
+  padding: 32px 28px; box-shadow: var(--shadow);
+  border: 1px solid var(--rule); position: relative; overflow: hidden;
+}
+.roadmap-card::after {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 4px; background: linear-gradient(90deg, var(--accent), var(--orange));
+}
+.roadmap-phase {
+  display: inline-block; background: var(--orange-soft);
+  color: var(--orange); padding: 4px 12px; border-radius: 8px;
+  font-size: 0.78rem; font-weight: 700; margin-bottom: 16px;
+  letter-spacing: 0.05em;
+}
+.roadmap-phase.blue { background: var(--accent-soft); color: var(--accent); }
+.roadmap-phase.green { background: var(--green-soft); color: var(--green); }
+.roadmap-card h3 { font-size: 1.2rem; font-weight: 700; margin-bottom: 16px; color: var(--ink); line-height: 1.35; }
+.roadmap-list { list-style: none; padding: 0; }
+.roadmap-list li {
+  position: relative; padding-left: 22px;
+  margin-bottom: 12px; font-size: 0.9rem;
+  color: var(--muted); line-height: 1.65;
+}
+.roadmap-list li::before {
+  content: '→'; position: absolute; left: 0; top: 0;
+  color: var(--accent); font-weight: 700;
+}
+
+/* ===== CTA Section ===== */
+.cta-section { position: relative; overflow: hidden; }
+.cta-section::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(249,115,22,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.cta-inner {
+  position: relative; text-align: center; max-width: 720px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+  border-radius: 28px; padding: 56px 48px;
+  box-shadow: 0 20px 60px rgba(37,99,235,0.25);
+  overflow: hidden;
+}
+.cta-inner::before {
+  content: ''; position: absolute; top: -50%; right: -30%;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(249,115,22,0.2) 0%, transparent 60%);
+  pointer-events: none;
+}
+.cta-inner h2 {
+  color: #fff; font-size: 2rem; font-weight: 800;
+  margin-bottom: 14px; letter-spacing: -0.02em; position: relative;
+}
+.cta-inner h2 .accent { color: var(--orange); }
+.cta-inner p {
+  color: rgba(255,255,255,0.85); font-size: 1.02rem;
+  margin-bottom: 32px; line-height: 1.75; position: relative;
+}
+.cta-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 10px; padding: 18px 44px; border-radius: 14px;
+  background: #fff; color: var(--accent);
+  font-size: 1.1rem; font-weight: 700;
+  text-decoration: none; box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+  transition: all 0.25s; position: relative;
+  border: none; cursor: pointer;
+}
+.cta-btn:hover { transform: translateY(-3px); box-shadow: 0 14px 40px rgba(0,0,0,0.28); background: var(--orange); color: #fff; }
+.cta-sub { margin-top: 20px; color: rgba(255,255,255,0.7); font-size: 0.85rem; position: relative; }
+
+@media (max-width: 768px) {
+  .cta-inner { padding: 40px 24px; }
+  .cta-inner h2 { font-size: 1.5rem; }
+}
+
+/* ===== Footer ===== */
+.footer { border-top: 1px solid var(--rule); padding: 40px 0; text-align: center; }
+.footer-logo { font-size: 1.2rem; font-weight: 800; margin-bottom: 8px; color: var(--ink); }
+.footer p { font-size: 0.85rem; color: var(--muted); }
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo"><span class="nav-logo-dot"></span>Gator</a>
+    <div class="nav-links">
+      <a href="#principles">核心原则</a>
+      <a href="#pain">灵感困境</a>
+      <a href="#features">现阶段功能</a>
+      <a href="#progress">项目进度</a>
+      <a href="#roadmap">未来规划</a>
+      <a href="#cta" class="nav-cta">打开实机应用</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero" id="hero">
+  <div class="container">
+    <div class="hero-card">
+      <div class="hero-badge">
+        <span class="hero-badge-dot"></span>
+        Trae AI 创造力大赛 · 参赛作品
+      </div>
+
+      <h1 class="hero-title">
+        把每一个闪现的灵感<br>
+        <span class="highlight">稳稳收进来</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        Inspiration above overwhelming.<br>
+        筛掉无效信息消耗，<em>保留个体可行动的价值</em>。
+      </p>
+
+      <div class="hero-btns">
+        <a href="gator-contest/index.html" class="btn btn-primary">
+          打开实机应用 →
+        </a>
+        <a href="#features" class="btn btn-secondary">
+          了解功能亮点
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <div class="hero-stat-num">6类</div>
+          <div class="hero-stat-label">内容可视化</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">0</div>
+          <div class="hero-stat-label">无需登录/上传</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-num">100%</div>
+          <div class="hero-stat-label">本地数据存储</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- App Preview -->
+    <div class="app-preview reveal">
+      <div class="app-window">
+        <div class="app-header">
+          <div class="app-dots">
+            <span class="app-dot red"></span>
+            <span class="app-dot yellow"></span>
+            <span class="app-dot green"></span>
+          </div>
+          <span class="app-title">Gator — 灵感捕获器</span>
+        </div>
+        <div class="app-body">
+          <div class="app-sidebar">
+            <div class="app-item"><span class="app-emoji">📂</span>全部</div>
+            <div class="app-item active"><span class="app-emoji">💡</span>灵感</div>
+            <div class="app-item"><span class="app-emoji">📝</span>笔记</div>
+            <div class="app-item"><span class="app-emoji">📎</span>引用</div>
+            <div class="app-item"><span class="app-emoji">🖼️</span>图片</div>
+            <div class="app-item"><span class="app-emoji">🌐</span>Web Clip</div>
+          </div>
+          <div class="app-content">
+            <span class="content-tag"># 产品思考 · 今日灵感</span>
+            <h3 class="content-title">灵感不是被整理出来的，它是被捕获的</h3>
+            <div class="content-meta">
+              <span>📅 刚刚</span>
+              <span>✍️ 灵感条目</span>
+              <span>🏷️ #产品 #笔记</span>
+            </div>
+            <div class="content-text">
+              <p>当工具要求你先<span class="hl">成为"笔记系统设计师"</span>，灵感的第一秒就已经流失了。</p>
+              <p>Gator 的答案：<span class="hl">打开即写，写完即走</span>——它不是一个"笔记 App"，而是一个"灵感容器"。</p>
+            </div>
+            <div class="app-image-row">
+              <div class="image-thumb">💡 灵感卡片</div>
+              <div class="image-thumb orange">📸 图片预览</div>
+              <div class="image-thumb green">🏷️ emoji 分类</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Principles -->
+<section class="section" id="principles">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label">核心原则</span>
+      <h2>三个设计信念，决定了它的<span class="accent">每一个像素</span></h2>
+      <p>Gator 不是功能列表的堆砌，它是一套围绕"灵感第一秒"设计的约束</p>
+    </div>
+
+    <div class="principles-grid">
+      <div class="principle-card reveal">
+        <div class="principle-icon blue">⚡</div>
+        <h3>轻量</h3>
+        <p>不注册、不登录、不云同步。首屏 < 100ms 加载，零摩擦启动。灵感的第一秒，不该被任何弹窗打断。</p>
+      </div>
+      <div class="principle-card reveal">
+        <div class="principle-icon orange">🏷️</div>
+        <h3>可分类</h3>
+        <p>emoji 图标 + 分类标签 + 颜色编码，每条灵感一眼可辨。信息不是被归档，而是被点亮。</p>
+      </div>
+      <div class="principle-card reveal">
+        <div class="principle-icon green">🎨</div>
+        <h3>视觉友好</h3>
+        <p>卡片式布局、瀑布流、图片预览、弹性动效——以最舒适的方式呈现信息，让回顾变成一种享受。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pain Points -->
+<section class="section pain-section" id="pain">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label" style="background: var(--orange-soft); color: var(--orange);">灵感的困境</span>
+      <h2>在 AI 能回答一切的时代，<br><span class="accent">真正稀缺的是你的问题</span></h2>
+      <p>每一个灵感闪现的瞬间，如果不能被即时捕获，99% 都会永远消失</p>
+    </div>
+
+    <div class="pain-grid">
+      <div class="pain-card reveal">
+        <div class="pain-num">01</div>
+        <h3>灵感半衰期只有 3 秒</h3>
+        <p>你在地铁上看到一句共鸣的话，打开备忘录要 5 步：解锁 → 找 App → 新建 → 归类 → 输入。等你准备好，灵感已经走了。</p>
+      </div>
+      <div class="pain-card reveal">
+        <div class="pain-num">02</div>
+        <h3>整理的成本高于创造</h3>
+        <p>大多数笔记工具先让你"设计系统"——命名、打标签、归类。创造的冲动，被整理的压力掐死在起跑线。</p>
+      </div>
+      <div class="pain-card reveal">
+        <div class="pain-num">03</div>
+        <h3>信息在无限膨胀，注意力在崩溃</h3>
+        <p>AI 让信息获取零门槛，但真正属于你的只有那些触动过你的瞬间。当你试图保存一切，最终什么都留不住。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label">现阶段功能</span>
+      <h2>一个<span class="accent">能跑起来</span>的 MVP，不是完美的空想</h2>
+      <p>以下功能均已在桌面应用中实现，可直接打开实机应用体验</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <span class="feature-badge">核心</span>
+        <div class="feature-icon">💡</div>
+        <h4>灵感快速捕获</h4>
+        <p>Cmd+Opt+G 全局热键随时唤出窗口，3 秒记录一条灵感。打开即写，写完即走，零心智负担。</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-badge">核心</span>
+        <div class="feature-icon">🎨</div>
+        <h4>6 类可视化内容</h4>
+        <p>灵感 / 笔记 / Web Clip / 引用 / 文件 / 图片，每类都有专属的卡片样式和视觉编码，一眼区分。</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-badge">分类</span>
+        <div class="feature-icon">🏷️</div>
+        <h4>emoji + 标签系统</h4>
+        <p>每个文件夹一个专属 emoji + 主题色。分类不靠手动输入，而靠视觉直觉，回顾时如浏览自己的思维地图。</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-badge">浏览</span>
+        <div class="feature-icon">🖼️</div>
+        <h4>瀑布流卡片视图</h4>
+        <p>所有内容以卡片瀑布流的方式呈现，图片自动缩略图、长文字自适应高度，灵感不再埋没在文件夹深处。</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-badge">存储</span>
+        <div class="feature-icon">💾</div>
+        <h4>本地优先存储</h4>
+        <p>所有数据保存在本地 JSON 与 markdown 文件中，纯文本可读。不联网、不上传、不出设备。</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-badge">体验</span>
+        <div class="feature-icon">🔄</div>
+        <h4>触控板惯性滑动</h4>
+        <p>原生级别的滚动体验，惯性感、弹性动效与系统应用一致。写东西这件事，手感比功能更重要。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Progress -->
+<section class="section progress-section" id="progress">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label">当前进度</span>
+      <h2>项目的<span class="accent">真实状态</span></h2>
+      <p>这是一个从第一行代码开始就被真实使用的产品，以下是目前所处的阶段</p>
+    </div>
+
+    <div class="progress-wrap reveal">
+      <div class="progress-intro">
+        <h3>🌱 一个被真实使用的 MVP</h3>
+        <p>核心链路 "捕获 → 归类 → 回顾" 已打通，日常可稳定使用</p>
+      </div>
+
+      <div class="progress-timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot done">✓</div>
+          <div class="timeline-content">
+            <h4>核心数据模型 <span class="timeline-status done">已完成</span></h4>
+            <p>6 类内容（灵感/笔记/Web Clip/引用/文件/图片）的统一存储结构，每个条目包含唯一 ID、emoji、主题色、分类标签、时间戳。</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot done">✓</div>
+          <div class="timeline-content">
+            <h4>桌面应用骨架 <span class="timeline-status done">已完成</span></h4>
+            <p>基于 Electron 的多窗口架构，支持 Cmd+Opt+G 全局热键快速唤起，主窗口 + 快速捕获窗口分离。</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot done">✓</div>
+          <div class="timeline-content">
+            <h4>瀑布流卡片浏览 <span class="timeline-status done">已完成</span></h4>
+            <p>Masonry 布局实现卡片自适应排列，图片自动缩略图、长文字自适应高度，支持触控板惯性滑动。</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot ongoing">●</div>
+          <div class="timeline-content">
+            <h4>文件夹与分类系统 <span class="timeline-status ongoing">进行中</span></h4>
+            <p>每个文件夹支持自定义 emoji + 主题色 + 描述，左侧边栏文件夹切换 + 快速筛选。正在完善：标签合并、智能文件夹。</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot">○</div>
+          <div class="timeline-content">
+            <h4>搜索与检索 <span class="timeline-status" style="background: var(--accent-soft); color: var(--accent);">待实现</span></h4>
+            <p>全文搜索、关键词高亮、按时间/类型/标签多维度筛选。灵感回顾时，搜索是最高频的入口。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Roadmap -->
+<section class="section" id="roadmap">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label">未来规划</span>
+      <h2>从<span class="accent">灵感容器</span>，到<span class="accent">思维引擎</span></h2>
+      <p>以下是接下来几个阶段的方向——这是一个会持续生长的工具</p>
+    </div>
+
+    <div class="roadmap-grid">
+      <div class="roadmap-card reveal">
+        <span class="roadmap-phase">PHASE 1 · 近 3 个月</span>
+        <h3>完善基础体验</h3>
+        <ul class="roadmap-list">
+          <li>全文搜索 + 关键词高亮，让过去的灵感秒级可及</li>
+          <li>跨窗口同步：主窗口 ↔ 快速捕获窗口数据实时同步</li>
+          <li>导出能力：Markdown 批量导出、HTML 快照存档</li>
+          <li>主题切换：浅色 / 深色 / 琥珀护眼模式</li>
+        </ul>
+      </div>
+      <div class="roadmap-card reveal">
+        <span class="roadmap-phase blue">PHASE 2 · 年内</span>
+        <h3>让灵感"活起来"</h3>
+        <ul class="roadmap-list">
+          <li>时间线视图：按周/月回顾自己的灵感流，形成自我叙事</li>
+          <li>关联条目：让相关的灵感彼此"认识"，从碎片走向脉络</li>
+          <li>AI 辅助：基于本地内容进行语义检索、自动打标签、灵感推荐</li>
+          <li>多设备同步（完全本地化的方案，不依赖第三方云）</li>
+        </ul>
+      </div>
+      <div class="roadmap-card reveal">
+        <span class="roadmap-phase green">PHASE 3 · 长期</span>
+        <h3>真正的"思维引擎"</h3>
+        <ul class="roadmap-list">
+          <li>个人知识图谱：灵感之间的连接可视化</li>
+          <li>创作工作台：将捕获的灵感一键转化为文章/方案大纲</li>
+          <li>开放插件：让第三方开发者扩展捕获渠道</li>
+          <li>从"保存想法"进化到"孕育思想"——让真正属于你的东西持续生长</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="section cta-section" id="cta">
+  <div class="container">
+    <div class="cta-inner reveal">
+      <h2>准备好<span class="accent">打开实机应用</span>了吗？</h2>
+      <p>所有展示的功能均已在桌面应用中实现，可直接体验<br>下方文件夹中是可独立运行的完整前端资源，纯前端 · 本地运行 · 数据不出设备</p>
+      <a href="gator-contest/index.html" class="cta-btn">
+        打开实机应用 →
+      </a>
+      <div class="cta-sub">📁 实机文件位于：gator-contest/ 文件夹</div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-logo">Gator</div>
+    <p>一个为"灵感第一秒"而生的捕获器 · Inspiration above overwhelming</p>
+  </div>
+</footer>
+
+<script>
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 40) nav.classList.add('scrolled');
+  else nav.classList.remove('scrolled');
+});
+
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    const targetId = this.getAttribute('href');
+    if (targetId === '#') return;
+    e.preventDefault();
+    const target = document.querySelector(targetId);
+    if (target) {
+      const top = target.getBoundingClientRect().top + window.pageYOffset - 80;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+  });
+});
+
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { rootMargin: '0px 0px -60px 0px', threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => { revealObserver.observe(el); });
+
+const gridObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const children = entry.target.querySelectorAll('.reveal');
+      children.forEach((child, i) => {
+        setTimeout(() => child.classList.add('visible'), i * 100);
+      });
+      gridObserver.unobserve(entry.target);
+    }
+  });
+}, { rootMargin: '0px 0px -40px 0px', threshold: 0.1 });
+
+document.querySelectorAll('.principles-grid, .pain-grid, .features-grid, .roadmap-grid').forEach(grid => {
+  gridObserver.observe(grid);
+});
+</script>
+
+</body>
+</html>

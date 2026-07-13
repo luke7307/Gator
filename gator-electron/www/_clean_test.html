@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>body{margin:0}iframe{border:none;display:block;width:100%;height:100vh}</style>
+</head>
+<body>
+<iframe id="app" src="http://localhost:8766/index.html"></iframe>
+<script>
+const iframe = document.getElementById('app');
+iframe.addEventListener('load', () => {
+  // 清理 localStorage 并重置
+  try {
+    iframe.contentWindow.localStorage.removeItem('gator_items_v4');
+    iframe.contentWindow.localStorage.removeItem('gator_layout');
+    iframe.contentWindow.localStorage.removeItem('gator_tags');
+    iframe.contentWindow.localStorage.removeItem('gator_notebooks');
+    iframe.contentWindow.localStorage.removeItem('gator_current_notebook');
+  } catch(e) {}
+  
+  setTimeout(() => {
+    iframe.src = iframe.src + '?fresh=' + Date.now();
+  }, 500);
+});
+
+let reloaded = false;
+iframe.addEventListener('load', () => {
+  if (!reloaded) { reloaded = true; return; }
+  setTimeout(() => {
+    const doc = iframe.contentDocument;
+    const win = iframe.contentWindow;
+    // 点击 "分类与灵感" 按钮
+    const btn = doc.querySelector('button[onclick*="addDemoData"]');
+    if (btn) btn.click();
+    
+    setTimeout(() => {
+      // 找到"灵感"tab
+      const tabs = doc.querySelectorAll('[onclick*="selectTab"]');
+      tabs.forEach(t => {
+        if (t.textContent.includes('灵感')) {
+          t.click();
+        }
+      });
+    }, 800);
+  }, 1500);
+});
+</script>
+</body>
+</html>
